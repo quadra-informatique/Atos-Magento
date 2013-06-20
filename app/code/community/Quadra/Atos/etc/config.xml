@@ -1,0 +1,416 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * 1997-2012 Quadra Informatique
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0) that is available
+ * through the world-wide-web at this URL: http://www.opensource.org/licenses/OSL-3.0
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
+ *
+ *  @author Quadra Informatique <ecommerce@quadra-informatique.fr>
+ *  @copyright 1997-2013 Quadra Informatique
+ *  @version Release: $Revision: 2.1.2 $
+ *  @license http://www.opensource.org/licenses/OSL-3.0  Open Software License (OSL 3.0)
+ */
+-->
+<config>
+    <modules>
+        <Quadra_Atos>
+            <version>2.1.2</version>
+        </Quadra_Atos>
+    </modules>
+    <global>
+        <models>
+            <atos>
+                <class>Quadra_Atos_Model</class>
+                <resourceModel>atos_mysql4</resourceModel>
+            </atos>
+            <atos_mysql4>
+                <class>Quadra_Atos_Model_Mysql4</class>
+                <entities>
+                    <log_request>
+                        <table>atos_log_request</table>
+                    </log_request>
+                    <log_response>
+                        <table>atos_log_response</table>
+                    </log_response>
+                </entities>
+            </atos_mysql4>
+        </models>
+        <blocks>
+            <atos>
+                <class>Quadra_Atos_Block</class>
+            </atos>
+        </blocks>
+        <helpers>
+            <atos>
+                <class>Quadra_Atos_Helper</class>
+            </atos>
+        </helpers>
+        <resources>
+            <atos_setup>
+                <setup>
+                    <module>Quadra_Atos</module>
+                    <class>Mage_Core_Model_Resource_Setup</class>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </atos_setup>
+            <atos_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </atos_write>
+            <atos_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </atos_read>
+        </resources>
+        <payment>
+            <atos_standard>
+                <!-- Liste des langages supportées -->
+                <languages>
+                    <fr>
+                        <code>fr</code>
+                        <name>Français</name>
+                    </fr>
+                    <en>
+                        <code>en</code>
+                        <name>Anglais</name>
+                    </en>
+                    <sp>
+                        <code>sp</code>
+                        <name>Espagnol</name>
+                    </sp>
+                    <ge>
+                        <code>ge</code>
+                        <name>Allemand</name>
+                    </ge>
+                    <it>
+                        <code>it</code>
+                        <name>Italien</name>
+                    </it>
+                </languages>
+                <!-- Liste des cartes de crédit supportées -->
+                <credit_card>
+                    <CB>
+                        <code>CB</code>
+                        <name>Carte Bleue</name>
+                    </CB>
+                    <MASTERCARD>
+                        <code>MASTERCARD</code>
+                        <name>MasterCard</name>
+                    </MASTERCARD>
+                    <VISA>
+                        <code>VISA</code>
+                        <name>Visa</name>
+                    </VISA>
+                    <AMEX>
+                        <code>AMEX</code>
+                        <name>American Express</name>
+                    </AMEX>
+                    <DINERS>
+                        <code>DINERS</code>
+                        <name>Diner's club</name>
+                    </DINERS>
+                    <JCB>
+                        <code>JCB</code>
+                        <name>Japanese Credit Bureau (JCB)</name>
+                    </JCB>
+                    <COFINOGA>
+                        <code>COFINOGA</code>
+                        <name>Cofinoga</name>
+                    </COFINOGA>
+                    <FINAREF>
+                        <code>FINAREF</code>
+                        <name>Finaref</name>
+                    </FINAREF>
+                </credit_card>
+                <!-- Liste des devises supportées -->
+                <currencies>
+                    <EUR>
+                        <code>978</code>
+                        <iso>EUR</iso>
+                        <name>Euro</name>
+                    </EUR>
+                    <USD>
+                        <code>840</code>
+                        <iso>USD</iso>
+                        <name>Dollar US</name>
+                    </USD>
+                    <CHF>
+                        <code>756</code>
+                        <iso>CHF</iso>
+                        <name>Franc Suisse</name>
+                    </CHF>
+                    <GBP>
+                        <code>826</code>
+                        <iso>GBP</iso>
+                        <name>Livre Sterling</name>
+                    </GBP>
+                    <CAD>
+                        <code>124</code>
+                        <iso>CAD</iso>
+                        <name>Dollar Canadien</name>
+                    </CAD>
+                    <JPY>
+                        <code>392</code>
+                        <iso>JPY</iso>
+                        <name>Yen japonais</name>
+                    </JPY>
+                    <MXP>
+                        <code>484</code>
+                        <iso>MXP</iso>
+                        <name>Peso mexicain</name>
+                    </MXP>
+                    <TRL>
+                        <code>792</code>
+                        <iso>TRL</iso>
+                        <name>Ancienne lire turque</name>
+                    </TRL>
+                    <AUD>
+                        <code>036</code>
+                        <iso>AUD</iso>
+                        <name>Dollar australien</name>
+                    </AUD>
+                    <NZD>
+                        <code>554</code>
+                        <iso>NZD</iso>
+                        <name>Dollar néo-zélandais</name>
+                    </NZD>
+                    <NOK>
+                        <code>578</code>
+                        <iso>NOK</iso>
+                        <name>Couronne norvégienne</name>
+                    </NOK>
+                    <BRC>
+                        <code>986</code>
+                        <iso>BRC</iso>
+                        <name>Cruzeiro Brésilien</name>
+                    </BRC>
+                    <ARP>
+                        <code>032</code>
+                        <iso>ARP</iso>
+                        <name>Peso argentin</name>
+                    </ARP>
+                    <KHR>
+                        <code>116</code>
+                        <iso>KHR</iso>
+                        <name>Riel Cambodge</name>
+                    </KHR>
+                    <TWD>
+                        <code>901</code>
+                        <iso>TWD</iso>
+                        <name>Dollar de Taiwan</name>
+                    </TWD>
+                    <DKK>
+                        <code>208</code>
+                        <iso>DKK</iso>
+                        <name>Couronne danoise</name>
+                    </DKK>
+                    <CZK>
+                        <code>203</code>
+                        <iso>CZK</iso>
+                        <name>Couronne tchèque</name>
+                    </CZK>
+                    <SEK>
+                        <code>752</code>
+                        <iso>SEK</iso>
+                        <name>Couronne Suédoise</name>
+                    </SEK>
+                    <KRW>
+                        <code>410</code>
+                        <iso>KRW</iso>
+                        <name>Won sud-coréen</name>
+                    </KRW>
+                    <SGD>
+                        <code>702</code>
+                        <iso>SGD</iso>
+                        <name>Dollar de Singapour</name>
+                    </SGD>
+                </currencies>
+                <!-- Ip serveur atos pour la réponse automatique -->
+                <authorized_ip>
+                    <value>193.56.46.18,193.56.46.96,193.56.46.97</value>
+                </authorized_ip>
+                <!-- Liste des mots clés du champ data -->
+                <data_field>
+                    <CARD_NO_LOGO>
+                        <code>CARD_NO_LOGO</code>
+                        <name>CARD_NO_LOGO</name>
+                    </CARD_NO_LOGO>
+                    <NO_COPYRIGHT>
+                        <code>NO_COPYRIGHT</code>
+                        <name>NO_COPYRIGHT</name>
+                    </NO_COPYRIGHT>
+                    <NO_DISPLAY_CARD>
+                        <code>NO_DISPLAY_CARD</code>
+                        <name>NO_DISPLAY_CARD</name>
+                    </NO_DISPLAY_CARD>
+                    <NO_DISPLAY_CANCEL>
+                        <code>NO_DISPLAY_CANCEL</code>
+                        <name>NO_DISPLAY_CANCEL</name>
+                    </NO_DISPLAY_CANCEL>
+                    <NO_SSL_SYMBOLS>
+                        <code>NO_SSL_SYMBOLS</code>
+                        <name>NO_SSL_SYMBOLS</name>
+                    </NO_SSL_SYMBOLS>
+                    <NO_WINDOWS_MSG>
+                        <code>NO_WINDOWS_MSG</code>
+                        <name>NO_WINDOWS_MSG</name>
+                    </NO_WINDOWS_MSG>
+                    <NO_DISPLAY_URL>
+                        <code>NO_DISPLAY_URL</code>
+                        <name>NO_DISPLAY_URL</name>
+                    </NO_DISPLAY_URL>
+                    <NO_RESPONSE_PAGE>
+                        <code>NO_RESPONSE_PAGE</code>
+                        <name>NO_RESPONSE_PAGE</name>
+                    </NO_RESPONSE_PAGE>
+                </data_field>
+            </atos_standard>
+        </payment>
+    </global>
+    <frontend>
+        <secure_url>
+            <atos_standard>/atos/standard</atos_standard>
+            <atos_several>/atos/several</atos_several>
+            <atos_aurore>/atos/aurore</atos_aurore>
+            <atos_euro>/atos/euro</atos_euro>
+        </secure_url>
+        <routers>
+            <atos>
+                <use>standard</use>
+                <args>
+                    <module>Quadra_Atos</module>
+                    <frontName>atos</frontName>
+                </args>
+            </atos>
+        </routers>
+        <translate>
+            <modules>
+                <Quadra_Atos>
+                    <files>
+                        <default>Quadra_Atos.csv</default>
+                    </files>
+                </Quadra_Atos>
+            </modules>
+        </translate>
+        <layout>
+            <updates>
+                <atos>
+                    <file>atos.xml</file>
+                </atos>
+            </updates>
+        </layout>
+        <events>
+            <checkout_controller_multishipping_shipping_post>
+                <observers>
+                    <atos_multishipping_init_redirect>
+                        <type>model</type>
+                        <class>atos/observer</class>
+                        <method>initRedirect</method>
+                    </atos_multishipping_init_redirect>
+                </observers>
+            </checkout_controller_multishipping_shipping_post>
+            <sales_order_place_after>
+                <observers>
+                    <atos_multishipping_disable_email_for_multishipping>
+                        <type>model</type>
+                        <class>atos/observer</class>
+                        <method>disableEmailForMultishipping</method>
+                    </atos_multishipping_disable_email_for_multishipping>
+                </observers>
+            </sales_order_place_after>
+            <checkout_multishipping_controller_success_action>
+                <observers>
+                    <atos_multishipping_redirect_url>
+                        <type>model</type>
+                        <class>atos/observer</class>
+                        <method>multishippingRedirectUrl</method>
+                    </atos_multishipping_redirect_url>
+                </observers>
+            </checkout_multishipping_controller_success_action>
+        </events>
+    </frontend>
+    <crontab>
+        <jobs>
+            <atos_update_not_payed_orders>
+                <schedule>
+                    <cron_expr>*/15 * * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>atos/observer::updateNotPayedOrders</model>
+                </run>
+            </atos_update_not_payed_orders>
+        </jobs>
+    </crontab>
+    <adminhtml>
+        <translate>
+            <modules>
+                <Quadra_Atos>
+                    <files>
+                        <default>Quadra_Atos.csv</default>
+                    </files>
+                </Quadra_Atos>
+            </modules>
+        </translate>
+    </adminhtml>
+    <default>
+        <atos>
+            <config_bin_files>
+                <bin_request>/lib/atos/binary/request</bin_request>
+                <bin_response>/lib/atos/binary/response</bin_response>
+            </config_bin_files>
+            <config_standard>
+                <merchant_id></merchant_id>
+            </config_standard>
+            <config_several>
+                <merchant_id></merchant_id>
+            </config_several>
+            <config_aurore>
+                <merchant_id></merchant_id>
+            </config_aurore>
+            <config_euro>
+                <merchant_id></merchant_id>
+            </config_euro>
+        </atos>
+        <payment>
+            <atos_standard>
+                <payment_action>Payment</payment_action>
+                <model>atos/method_standard</model>
+                <title>Atos / Sips</title>
+                <allowspecific>0</allowspecific>
+                <empty_cart>1</empty_cart>
+            </atos_standard>
+            <atos_several>
+                <nb_payment>3</nb_payment>
+                <payment_action>Payment</payment_action>
+                <model>atos/method_several</model>
+                <title>Payment in several times</title>
+                <allowspecific>0</allowspecific>
+                <empty_cart>1</empty_cart>
+            </atos_several>
+            <atos_aurore>
+                <model>atos/method_aurore</model>
+                <title>Aurore</title>
+                <allowspecific>0</allowspecific>
+                <empty_cart>1</empty_cart>
+            </atos_aurore>
+            <atos_euro>
+                <model>atos/method_euro</model>
+                <title>1Euro.Com</title>
+                <allowspecific>0</allowspecific>
+                <empty_cart>1</empty_cart>
+            </atos_euro>
+        </payment>
+        <logo>
+            <atos_standard>images/media/atos/CLEF.gif</atos_standard>
+        </logo>
+    </default>
+</config>

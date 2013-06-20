@@ -1,0 +1,31 @@
+<?php
+/**
+ * 1997-2012 Quadra Informatique
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0) that is available
+ * through the world-wide-web at this URL: http://www.opensource.org/licenses/OSL-3.0
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
+ *
+ *  @author Quadra Informatique <ecommerce@quadra-informatique.fr>
+ *  @copyright 1997-2013 Quadra Informatique
+ *  @version Release: $Revision: 2.1.2 $
+ *  @license http://www.opensource.org/licenses/OSL-3.0  Open Software License (OSL 3.0)
+ */
+?>
+<?php $_code = $this->getMethodCode(); ?>
+<?php $cards = $this->getCreditCardsAccepted(); ?>
+<?php if ($cards): ?>
+    <ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none">
+        <li><?php echo $this->__('Select your credit card') ?></li>
+        <?php $_ccType = $this->getInfoData('cc_type') ?>
+        <?php foreach ($cards as $key => $value): ?>
+            <li class="control">
+                <input type="radio" name="payment[cc_type]" id="<?php echo $_code ?>_atos_cc_<?php echo $key ?>" value="<?php echo $key ?>"<?php if ($_ccType == $key) {?> checked="checked"<?php }?> title="<?php echo $value ?>" class="radio atos_cc validate-one-required-by-name" />
+                <label for="<?php echo $_code ?>_atos_cc_<?php echo $key ?>"><img style="vertical-align:middle;" src="<?php echo $this->getSkinUrl('images/media/atos/') . $key ?>.gif" alt="<?php echo $value ?>" /></label>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+<?php endif; ?>

@@ -1,0 +1,35 @@
+# Security mode
+CONDITION!SSL!
+
+# background color
+BGCOLOR!F5F2ED!
+# Text color
+TEXTCOLOR!4B423D!
+
+# Payment icons global position
+BLOCK_ALIGN!center!
+# Payment icons positions
+BLOCK_ORDER!1,2,3,4,5,6,7,8!
+# Allowed payments means 
+PAYMENT_MEANS!CB,2,VISA,2,MASTERCARD,2!
+# Payment blocks labels
+HEADER_FLAG!yes!
+
+# Bank icon (1)
+#LOGO!.gif!
+# Bank icon (2)
+#LOGO2!.gif!
+
+# Currency code (euro = 978)
+CURRENCY!978!
+# Shop country (iso code)
+MERCHANT_COUNTRY!fr!
+# Shop language (iso code)
+MERCHANT_LANGUAGE!fr!
+# Customer language (iso code)
+LANGUAGE!fr!
+
+# Frame configuration
+TARGET!_top!
+
+TEMPLATE!template_ca_fr!
