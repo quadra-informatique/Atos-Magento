@@ -40,20 +40,23 @@ class Quadra_Atos_Helper_Data extends Mage_Core_Helper_Abstract {
                     $message .= ' - ' . Mage::getSingleton('atos/api_response')->describeResponse($response);
 
                     if ($status == Mage_Sales_Model_Order::STATE_PROCESSING) {
-                        $order->setState(
-                            Mage_Sales_Model_Order::STATE_PROCESSING, $status, $message
-                        );
+                        if ($model->getConfigData('invoice_create')) {
+                            $this->_saveInvoice($order);
+                        }
+                        $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $status, $message);
                     } else if ($status == Mage_Sales_Model_Order::STATE_COMPLETE) {
-                        $order->setState(
-                            Mage_Sales_Model_Order::STATE_COMPLETE, $status, $message, null, false
-                        );
-                    } else {
-                        $order->addStatusToHistory($status, $message, true);
-                    }
-
-                    // Create invoice
-                    if ($model->getConfigData('invoice_create')) {
                         $this->_saveInvoice($order);
+                        if($order->canShip()) {
+                            $itemQty =  $order->getItemsCollection()->count();
+                            $shipment = Mage::getModel('sales/service_order', $order)->prepareShipment($itemQty);
+                            $shipment = new Mage_Sales_Model_Order_Shipment_Api();
+                            $shipment->create($order->getIncrementId());
+                        }
+                    } else {
+                        if ($model->getConfigData('invoice_create')) {
+                            $this->_saveInvoice($order);
+                        }
+                        $order->addStatusToHistory($status, $message, true);
                     }
 
                     if (!$order->getEmailSent()) {
