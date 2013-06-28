@@ -94,7 +94,6 @@ lib/flex/
 lib/googlecheckout/
 lib/phpseclib/
 mage
-media/
 php.ini.sample
 pkginfo/
 shell/
