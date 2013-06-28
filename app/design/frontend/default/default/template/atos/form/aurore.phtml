@@ -1,6 +1,6 @@
 <?php
 /**
- * 1997-2012 Quadra Informatique
+ * 1997-2013 Quadra Informatique
  *
  * NOTICE OF LICENSE
  *
@@ -9,47 +9,42 @@
  * If you are unable to obtain it through the world-wide-web, please send an email
  * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
  *
- *  @author Quadra Informatique <ecommerce@quadra-informatique.fr>
- *  @copyright 1997-2013 Quadra Informatique
- *  @version Release: $Revision: 2.1.2 $
- *  @license http://www.opensource.org/licenses/OSL-3.0  Open Software License (OSL 3.0)
+ * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
+ * @copyright 1997-2013 Quadra Informatique
+ * @version Release: $Revision: 3.0.0 $
+ * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 ?>
 <?php $_code = $this->getMethodCode() ?>
-<fieldset class="form-list">
-    <ul id="payment_form_<?php echo $_code ?>" style="display:none">
-        <?php if ($pma = $this->getAurorePaymentMethodsAllowed()) : ?>
-        <li>
-            <?php echo $this->__('Select your payment method') ?>
-        </li>
-        <li class="control">
-      	<?php foreach($pma as $key => $value): ?>
-            <div>
-                <input id="<?php echo $_code ?>_atos_pma_<?php echo $key ?>" class="radio atos_cc validate-one-required-by-name" type="radio" name="payment[additional_data]" value="<?php echo $key ?>" />
-                <label style="float: none;" for="<?php echo $_code ?>_atos_pma_<?php echo $key ?>"><?php echo $value ?></label>
-            </div>
-            <div style="margin-bottom:6px;"></div>
-      	<?php endforeach; ?>
-      	</li>
-        <?php endif ?>
-        <li>
-            <strong><?php echo $this->__('To pay with %s, we need your birth date. Please, check it.', $this->getMethod()->getTitle()); ?></strong>
-        </li>
-        <li>
-            <?php if ($this->_getCustomerDob()) : ?>
-                <?php echo $this->__('Your birth date is: %s', $this->formatDate($this->_getCustomerDob(), Mage_Core_Model_Locale::FORMAT_TYPE_MEDIUM)); ?>
-            <?php else : ?>
-                <a href="<?php echo Mage::getUrl('customer/account/edit', array('_secure' => true)); ?>">
-                    <?php echo $this->__('Please, enter your birth date.'); ?>
-                </a>
-            <?php endif; ?>
-        </li>
-        <?php if ($this->_getCustomerDob()) : ?>
-        <li>
-            <a href="<?php echo Mage::getUrl('customer/account/edit', array('_secure' => true)); ?>">
-                <?php echo $this->__('Edit your birth date'); ?>
-            </a>
-        </li>
-        <?php endif; ?>
-    </ul>
-</fieldset>
+<ul class="form-list">
+    <li><img src="<?php echo Mage::getBaseUrl('media') . 'atos/logo/AURORE.gif' ?>" alt="AURORE" /></li>
+</ul>
+<ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none">
+    <li><?php echo $this->__('You will be redirected to the payment server after the finalization of your order.') ?></li>
+    <li>
+        <strong><?php echo $this->__('To pay with %s, we need your birth date. Please, check it.', $this->getMethod()->getTitle()); ?></strong>
+    </li>
+    <li>
+        <?php $_dob = $this->getLayout()->createBlock('customer/widget_dob') ?>
+        <?php echo $_dob->setDate($this->getQuote()->getCustomerDob())->setFieldIdFormat($_code . ':%s')->setFieldNameFormat($_code . '[%s]')->toHtml() ?>
+    </li>
+    <script type="text/javascript">
+        if ($('payment-buttons-container')) {
+            var button = $('payment-buttons-container').down('button');
+            var atosAuoreMethod = $('p_method_<?php echo $_code ?>');
+            if (button && atosAuoreMethod) {
+                Event.observe(button, 'click', function(){
+                    if (atosAuoreMethod.checked === true) {
+                        params = {
+                            dob: $('<?php echo $_code ?>:dob').value
+                        };
+                        new Ajax.Request('<?php echo Mage::getUrl('atos/payment/saveAuroreDob', array('_secure' => true)); ?>', {
+                            method: 'post',
+                            parameters: params
+                        });
+                    }
+                });
+            }
+        }
+    </script>
+</ul>

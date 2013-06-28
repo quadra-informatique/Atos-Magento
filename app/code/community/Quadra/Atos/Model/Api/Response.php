@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 1997-2012 Quadra Informatique
+ * 1997-2013 Quadra Informatique
  *
  * NOTICE OF LICENSE
  *
@@ -10,77 +10,111 @@
  * If you are unable to obtain it through the world-wide-web, please send an email
  * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
  *
- *  @author Quadra Informatique <ecommerce@quadra-informatique.fr>
- *  @copyright 1997-2013 Quadra Informatique
- *  @version Release: $Revision: 2.1.2 $
- *  @license http://www.opensource.org/licenses/OSL-3.0  Open Software License (OSL 3.0)
+ * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
+ * @copyright 1997-2013 Quadra Informatique
+ * @version Release: $Revision: 3.0.0 $
+ * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
-class Quadra_Atos_Model_Api_Response extends Quadra_Atos_Model_Api_Parameters {
+class Quadra_Atos_Model_Api_Response {
 
     public function doResponse($data, $parameters) {
-        if (($data === null) && isset($_POST['DATA']) && !empty($_POST['DATA'])) {
-            $data = $_POST['DATA'];
-        }
+        // Récupération de la variable cryptée DATA
+	$message = "message=$data";
 
-        if (!preg_match(':^[a-zA-Z0-9]+$:', $data)) {
-            $data = '';
-        }
+	// Initialisation du chemin du fichier pathfile
+        $pathfile = "pathfile=" . $parameters['pathfile'];
 
-        $command = $parameters['bin_response'];
-        $command.= ' pathfile=' . $this->getApiFiles()->getPathfileName();
-        $command.= ' message=' . $data;
+	// Initialisation du chemin de l'executable response
+	$binPath = $parameters['bin_response'];
 
-        $sips_resp = shell_exec("$command 2>&1");
-        $sips_resp = explode('!', $sips_resp);
+	// Appel du binaire response
+        $command = "$binPath $pathfile $message";
+	$result = shell_exec($command);
 
+	// On separe les differents champs et on les met dans une variable tableau
+	$sips_response = explode('!', $result);
+
+	// Récupération des données de la réponse
         $hash = array();
-        $hash['command'] = $command;
-        $hash['output'] = $sips_resp;
 
         list (,
-                $hash['code'],
-                $hash['error'],
-                $hash['merchant_id'],
-                $hash['merchant_country'],
-                $hash['amount'],
-                $hash['transaction_id'],
-                $hash['payment_means'],
-                $hash['transmission_date'],
-                $hash['payment_time'],
-                $hash['payment_date'],
-                $hash['response_code'],
-                $hash['payment_certificate'],
-                $hash['authorisation_id'],
-                $hash['currency_code'],
-                $hash['card_number'],
-                $hash['cvv_flag'],
-                $hash['cvv_response_code'],
-                $hash['bank_response_code'],
-                $hash['complementary_code'],
-                $hash['complementary_info'],
-                $hash['return_context'],
-                $hash['caddie'], // unavailable with NO_RESPONSE_PAGE
-                $hash['receipt_complement'],
-                $hash['merchant_language'], // unavailable with NO_RESPONSE_PAGE
-                $hash['language'],
-                $hash['customer_id'], // unavailable with NO_RESPONSE_PAGE
-                $hash['order_id'],
-                $hash['customer_email'], // unavailable with NO_RESPONSE_PAGE
-                $hash['customer_ip_address'], // unavailable with NO_RESPONSE_PAGE
-                $hash['capture_day'],
-                $hash['capture_mode'],
-                $hash['data']
-                ) = $sips_resp;
+            $hash['response_code'],
+            $hash['error'],
+            $hash['merchant_id'],
+            $hash['merchant_country'],
+            $hash['amount'],
+            $hash['transaction_id'],
+            $hash['payment_means'],
+            $hash['transmission_date'],
+            $hash['payment_time'],
+            $hash['payment_date'],
+            $hash['response_code'],
+            $hash['payment_certificate'],
+            $hash['authorisation_id'],
+            $hash['currency_code'],
+            $hash['card_number'],
+            $hash['cvv_flag'],
+            $hash['cvv_response_code'],
+            $hash['bank_response_code'],
+            $hash['complementary_code'],
+            $hash['complementary_info'],
+            $hash['return_context'],
+            $hash['caddie'], // unavailable with NO_RESPONSE_PAGE
+            $hash['receipt_complement'],
+            $hash['merchant_language'], // unavailable with NO_RESPONSE_PAGE
+            $hash['language'],
+            $hash['customer_id'], // unavailable with NO_RESPONSE_PAGE
+            $hash['order_id'],
+            $hash['customer_email'], // unavailable with NO_RESPONSE_PAGE
+            $hash['customer_ip_address'], // unavailable with NO_RESPONSE_PAGE
+            $hash['capture_day'],
+            $hash['capture_mode'],
+            $hash['data'],
+            $hash['order_validity'],
+            $hash['transaction_condition'],
+            $hash['statement_reference'],
+            $hash['card_validity'],
+            $hash['score_value'],
+            $hash['score_color'],
+            $hash['score_info'],
+            $hash['score_threshold'],
+            $hash['score_profile']
+        ) = $sips_response;
 
-        if (!isset($hash['code'])) {
-            Mage::throwException($sips_resp);
+        // Formatage du retour
+        return array(
+            'command' => $command,
+            'output' => $sips_response,
+            'atos_server_ip_adresses' => $this->getAtosServerIpAddresses(),
+            'hash' => $hash
+        );
+    }
+
+    /**
+     *  Return Atos payment server IP addresses
+     *
+     *  @return array
+     */
+    public function getAtosServerIpAddresses() {
+        if (isset($_SERVER)) {
+            if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+            } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
+                $ip = $_SERVER['HTTP_CLIENT_IP'];
+            } else {
+                $ip = $_SERVER['REMOTE_ADDR'];
+            }
+        } else {
+            if (getenv('HTTP_X_FORWARDED_FOR')) {
+                $ip = getenv('HTTP_X_FORWARDED_FOR');
+            } elseif (getenv('HTTP_CLIENT_IP')) {
+                $ip = getenv('HTTP_CLIENT_IP');
+            } else {
+                $ip = getenv('REMOTE_ADDR');
+            }
         }
 
-        if ($hash['code'] == '-1') {
-            Mage::throwException($hash['error']);
-        }
-
-        return $hash;
+        return explode(',', $ip);
     }
 
     public function describeResponse($response, $return = 'string') {

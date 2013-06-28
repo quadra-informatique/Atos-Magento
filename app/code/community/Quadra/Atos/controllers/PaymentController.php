@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 1997-2012 Quadra Informatique
+ * 1997-2013 Quadra Informatique
  *
  * NOTICE OF LICENSE
  *
@@ -10,333 +10,338 @@
  * If you are unable to obtain it through the world-wide-web, please send an email
  * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
  *
- *  @author Quadra Informatique <ecommerce@quadra-informatique.fr>
- *  @copyright 1997-2013 Quadra Informatique
- *  @version Release: $Revision: 2.1.2 $
- *  @license http://www.opensource.org/licenses/OSL-3.0  Open Software License (OSL 3.0)
+ * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
+ * @copyright 1997-2013 Quadra Informatique
+ * @version Release: $Revision: 3.0.0 $
+ * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
 
-    protected $_session;
-    protected $_atosResponse = null;
-    protected $_realOrderIds;
-    protected $_quote;
-
-    public function preDispatch() {
-        parent::preDispatch();
-        $this->_session = Mage::getSingleton('checkout/session');
+    /**
+     * Get Atos Api Response Model
+     *
+     * @return Quadra_Atos_Model_Api_Response
+     */
+    public function getApiResponse() {
+        return Mage::getSingleton('atos/api_response');
     }
 
     /**
-     * Get Atos configuration
+     * Get current Atos Payment Method
      *
-     * @return type
+     * @return Quadra_Atos_Model_Method_Standard|Quadra_Atos_Model_Method_Several|Quadra_Atos_Model_Method_Euro|Quadra_Atos_Model_Method_Aurore
      */
-    public function getConfig() {
-        return Mage::getSingleton('atos/config');
-    }
+    public function getAtosMethod() {
+        $quoteId = (int) $this->getAtosSession()->getQuoteId();
+        $quote = Mage::getModel('sales/quote')->load($quoteId);
+        $method = $quote->getPayment()->getMethod();
 
-    /**
-     * Get Atos Method Singleton
-     *
-     * @return object Quadra_Atos_Model_Aurore
-     */
-    public function getAtosMethod($method = false) {
         switch ($method) {
-            case 'atos_standard' : $atosMethod = Mage::getSingleton('atos/method_standard');
+            case 'atos_standard' :
+                $atosMethod = Mage::getSingleton('atos/method_standard');
                 break;
-            case 'atos_several' : $atosMethod = Mage::getSingleton('atos/method_several');
+            case 'atos_several' :
+                $atosMethod = Mage::getSingleton('atos/method_several');
                 break;
-            case 'atos_aurore' : $atosMethod = Mage::getSingleton('atos/method_aurore');
+            case 'atos_aurore' :
+                $atosMethod = Mage::getSingleton('atos/method_aurore');
                 break;
-            case 'atos_euro' : $atosMethod = Mage::getSingleton('atos/method_euro');
+            case 'atos_euro' :
+                $atosMethod = Mage::getSingleton('atos/method_euro');
                 break;
-            default : $atosMethod = Mage::getSingleton('atos/method_default');
+            default :
+                $atosMethod = Mage::getSingleton('atos/method_standard');
         }
 
         return $atosMethod;
     }
 
     /**
-     * Redirect action to send data to bank's server
+     * Get Atos/Sips Standard config
+     *
+     * @return Quadra_Atos_Model_Config
+     */
+    public function getConfig() {
+        return Mage::getSingleton('atos/config');
+    }
+
+    /**
+     * Get checkout session
+     *
+     * @return Mage_Checkout_Model_Session
+     */
+    public function getCheckoutSession() {
+        return Mage::getSingleton('checkout/session');
+    }
+
+    /**
+     * Get customer session
+     *
+     * @return Mage_Customer_Model_Session
+     */
+    public function getCustomerSession() {
+        return Mage::getSingleton('customer/session');
+    }
+
+    /**
+     * Get Atos/Sips Standard session
+     *
+     * @return Quadra_Atos_Model_Session
+     */
+    public function getAtosSession() {
+        return Mage::getSingleton('atos/session');
+    }
+
+    /**
+     * When a customer chooses Atos/Sips Standard on Checkout/Payment page
      */
     public function redirectAction() {
-        $method   = $this->getRequest()->getParam('method', 'atos_standard');
-
-        switch ($method) {
-            case 'atos_several' : $block = 'atos/several_redirect';
-                break;
-            case 'atos_aurore' : $block = 'atos/aurore_redirect';
-                break;
-            case 'atos_euro' : $block = 'atos/euro_redirect';
-                break;
-            default : $block = 'atos/standard_redirect';
-        }
-
-        if ($this->_session->getQuote()->getHasError()) {
-            $this->_redirect('checkout/cart');
-        } else {
-            if (($quoteId = $this->_session->getLastQuoteId())) {
-                $this->_session->setAtosQuoteId($quoteId);
-            }
-            $this->getResponse()
-                 ->setBody(
-                    $this->getLayout()
-                         ->createBlock($block)
-                         ->toHtml()
-                 );
-        }
+        $this->getAtosSession()->setQuoteId($this->getCheckoutSession()->getLastQuoteId());
+        $quote = $this->getCheckoutSession()->getQuote();
+        $method = $quote->getPayment()->getMethod();
+        $this->getResponse()->setBody($this->getLayout()->createBlock($this->getAtosMethod($method)->getRedirectBlockType(), 'atos_redirect')->toHtml());
+        $this->getCheckoutSession()->unsQuoteId();
+        $this->getCheckoutSession()->unsRedirectUrl();
     }
 
     /**
-     * Cancel action called by customer's action
+     * When a customer cancel payment from Atos/Sips Standard.
      */
     public function cancelAction() {
-        if (!$this->getRequest()->isPost('DATA')) {
-            $this->_redirect('');
+        if (!array_key_exists('DATA', $_REQUEST)) {
+            // Set redirect message
+            $this->getAtosSession()->setRedirectMessage($this->__('An error occured: no data received.'));
+            // Log error
+            $errorMessage = $this->__('Customer #%s returned successfully from Atos/Sips payment platform but no data received for order #%s.', $this->getCustomerSession()->getCustomerId(), $this->getCheckoutSession()->getLastRealOrderId());
+            Mage::helper('atos')->logError(get_class($this), __FUNCTION__, $errorMessage);
+            // Redirect
+            $this->_redirect('*/*/failure');
             return;
         }
 
-        // Model par défaut
-        $model = $this->getAtosMethod();
-        $response = $model->getApiResponse()
-                ->doResponse($_REQUEST['DATA'], array('bin_response' => $model->getBinResponse()));
+        // Get Sips Server Response
+        $response = $this->_getAtosResponse($_REQUEST['DATA']);
+        // Set redirect URL
+        $response['redirect_url'] = '*/*/failure';
+        // Set redirect message
+        $this->getAtosSession()->setRedirectMessage($this->__('Process payment was cancelled, your order was automatically cancelled.'));
 
-        if ($response) {
-            unset($model);
-            $this->_setAtosResponse($response);
-            Mage::getModel('atos/log_response')->logResponse('cancel', $response);
-
-            $realOrderIds = $this->_getRealOrderIds();
-            if (count($realOrderIds) > 0) {
-                $order = Mage::getModel('sales/order')->loadByIncrementId($realOrderIds[0]);
-                $model = $this->getAtosMethod($order->getPayment()->getMethod());
-                unset($order);
+        // Cancel order
+        if ($response['hash']['order_id']) {
+            $order = Mage::getModel('sales/order')->loadByIncrementId($response['hash']['order_id']);
+            if ($order->getId()) {
+                $order->cancel()
+                        ->addStatusToHistory($order->getStatus(), $this->__('Order was canceled by customer'))
+                        ->save();
             }
-
-            foreach ($realOrderIds as $realOrderId) {
-                $order = Mage::getModel('sales/order')->loadByIncrementId($realOrderId);
-
-                if ($order->getId()) {
-                    if (!($status = $model->getConfigData('order_status_payment_canceled'))) {
-                        $status = $order->getStatus();
-                    }
-
-                    $order->addStatusToHistory(
-                            $status, $this->__('Order was canceled by customer')
-                    );
-
-                    if (($status == Mage_Sales_Model_Order::STATE_HOLDED) && $order->canHold()) {
-                        $order->hold();
-                    } elseif (($status == Mage_Sales_Model_Order::STATE_CANCELED) && $order->canCancel()) {
-                        $order->cancel();
-                    }
-
-                    $order->save();
-                }
-            }
-
-            if (!$model->getConfigData('empty_cart')) {
-                Mage::helper('atos')->reorder($this->_getRealOrderIds());
-            } else {
-                $this->_session->setQuoteId($this->_session->getAtosQuoteId(true));
-            }
-
-            $this->_session->setCanRedirect(false);
-            $this->_session->addNotice($this->__('The payment was canceled.'));
         }
 
-        $this->_redirect('checkout/cart');
+        // Save Atos/Sips response in session
+        $this->getAtosSession()->setResponse($response);
+
+        // Debug mode is active
+        if ($response['hash']['response_code'] == 0 && !empty($response['hash']['error'])) {
+            $this->_redirect('*/*/debug');
+            return;
+        }
+
+        $this->_redirect($response['redirect_url'], array('_secure' => true));
     }
 
     /**
-     * Normal action called after return of the bank's website
+     * When customer returns from Atos/Sips payment platform
      */
     public function normalAction() {
-        if (!$this->getRequest()->isPost('DATA')) {
-            $this->_redirect('');
+        if (!array_key_exists('DATA', $_REQUEST)) {
+            // Set redirect message
+            $this->getAtosSession()->setRedirectMessage($this->__('An error occured: no data received.'));
+            // Log error
+            $errorMessage = $this->__('Customer #%s returned successfully from Atos/Sips payment platform but no data received for order #%s.', $this->getCustomerSession()->getCustomerId(), $this->getCheckoutSession()->getLastRealOrderId());
+            Mage::helper('atos')->logError(get_class($this), __FUNCTION__, $errorMessage);
+            // Redirect
+            $this->_redirect('*/*/failure');
             return;
         }
 
-        // Model par défaut
-        $model    = $this->getAtosMethod();
-        $response = $model->getApiResponse()
-                          ->doResponse($_REQUEST['DATA'],array('bin_response' => $model->getBinResponse()));
+        // Get Sips Server Response
+        $response = $this->_getAtosResponse($_REQUEST['DATA']);
 
-        if ($response) {
-            unset($model);
-            $this->_setAtosResponse($response);
-            Mage::getModel('atos/log_response')->logResponse('normal', $response);
-
-            $realOrderIds = $this->_getRealOrderIds();
-            if (count($realOrderIds) > 0) {
-                $order = Mage::getModel('sales/order')->loadByIncrementId($realOrderIds[0]);
-                $model = $this->getAtosMethod($order->getPayment()->getMethod());
-                unset($order);
-            }
-
-            if ($response['merchant_id'] != $model->getMerchantId()) {
-                Mage::log(sprintf('Response Merchant ID (%s) is not valid with configuration value (%s)' . "\n", $response['merchant_id'], $model->getMerchantId()), null, 'atos.log');
-
-                $this->_session->addError($this->__('We are sorry but we have an error with payment module'));
-                $this->_redirect('checkout/cart');
-                return;
-            }
-
-            switch ($response['response_code']) {
-                case '00':
-                    $this->_session->setQuoteId($this->_session->getAtosQuoteId(true));
-                    $this->_session->getQuote()->setIsActive(false)->save();
-
-                    if ($this->_getQuote()->getIsMultiShipping()) {
-                        $orderIds = array();
-
-                        foreach ($realOrderIds as $realOrderId) {
-                            $order = Mage::getModel('sales/order')->loadByIncrementId($realOrderId);
-                            $orderIds[$order->getId()] = $realOrderId;
-                            unset($order);
-                        }
-
-                        Mage::getSingleton('checkout/type_multishipping')
-                                ->getCheckoutSession()
-                                ->setDisplaySuccess(true);
-
-                        $this->_session->setCanRedirect(false);
-
-                        Mage::getSingleton('core/session')->setOrderIds($orderIds);
-                    }
-
-                    $this->_redirect($this->_getSuccessRedirect(), array('_secure' => true));
-                    break;
-
-                default:
-                    if (!$model->getConfigData('empty_cart')) {
-                        Mage::helper('atos')->reorder($realOrderIds);
-                    } else {
-                        $this->_session->setQuoteId($this->_session->getAtosQuoteId(true));
-                    }
-
-                    $this->_session->setCanRedirect(false);
-                    $this->_session->addError($this->__('(Response Code %s) Error with payment module', $response['response_code']));
-                    $this->_redirect('checkout/cart');
-                    break;
-            }
+        // Check if merchant ID matches
+        if ($response['hash']['merchant_id'] != $this->getConfig()->getMerchantId()) {
+            // Set redirect message
+            $this->getAtosSession()->setRedirectMessage($this->__('An error occured: merchant ID mismatch.'));
+            // Log error
+            $errorMessage = $this->__('Response Merchant ID (%s) is mismatch with configuration value (%s)', $response['hash']['merchant_id'], $this->getConfig()->getMerchantId());
+            Mage::helper('atos')->logError(get_class($this), __FUNCTION__, $errorMessage);
+            // Redirect
+            $this->_redirect('*/*/failure');
+            return;
         }
+
+        // Treat response
+        $order = Mage::getModel('sales/order');
+        if ($response['hash']['order_id']) {
+            $order->loadByIncrementId($response['hash']['order_id']);
+        }
+
+        switch ($response['hash']['response_code']) {
+            case '00':
+                if ($order->getId()) {
+                    $order->addStatusToHistory($order->getStatus(), $this->__('Customer returned successfully from Atos/Sips payment platform.'))
+                            ->save();
+                }
+                $this->getCheckoutSession()->getQuote()->setIsActive(false)->save();
+                // Set redirect URL
+                $response['redirect_url'] = 'checkout/onepage/success';
+                break;
+            default:
+                // Log error
+                $errorMessage = $this->__('Error: code %s.<br /> %s', $response['hash']['response_code'], $response['hash']['error']);
+                Mage::helper('atos')->logError(get_class($this), __FUNCTION__, $errorMessage);
+                // Add error on order message
+                if ($order->getId()) {
+                    $order->addStatusToHistory($order->getStatus(), $errorMessage)
+                            ->save();
+                }
+                // Set redirect message
+                $this->getAtosSession()->setRedirectMessage($this->__('(Response Code %s) Error with payment module', $response['hash']['response_code']));
+                // Set redirect URL
+                $response['redirect_url'] = '*/*/failure';
+                break;
+        }
+
+        // Save Atos/Sips response in session
+        $this->getAtosSession()->setResponse($response);
+
+        // Debug mode is active
+        if ($response['hash']['response_code'] == 0 && !empty($response['hash']['error'])) {
+            $this->_redirect('*/*/debug');
+            return;
+        }
+
+        $this->_redirect($response['redirect_url'], array('_secure' => true));
     }
 
     /**
-     * Automatic action called by the Atos server
+     * When Atos/Sips returns
      */
     public function automaticAction() {
-        if (!$this->getRequest()->isPost('DATA')) {
-            $this->_redirect('');
+        if (!array_key_exists('DATA', $_REQUEST)) {
+            // Log error
+            $errorMessage = $this->__('Automatic response received but no data received for order #%s.', $this->getCheckoutSession()->getLastRealOrderId());
+            Mage::helper('atos')->logError(get_class($this), __FUNCTION__, $errorMessage);
             return;
         }
 
-        $model    = $this->getAtosMethod();
-        $response = $model->getApiResponse()
-                          ->doResponse($_REQUEST['DATA'],array('bin_response' => $model->getBinResponse()));
+        // Get Sips Server Response
+        $response = $this->_getAtosResponse($_REQUEST['DATA']);
 
-        if ($response) {
-            $this->_setAtosResponse($response);
-            Mage::getModel('atos/log_response')->logResponse('automatic', $response);
+        // Check IP address
+        if ($this->getAtosMethod()->getConfig()->getCheckByIpAddress()) {
+            $ipAdresses = $response['atos_server_ip_adresses'];
+            $authorizedIps = $this->getAtosMethod()->getConfig()->getAuthorizedIps();
+            $isIpOk = false;
 
-            $realOrderIds = $this->_getRealOrderIds();
-            if (count($realOrderIds) > 0) {
-                $order = Mage::getModel('sales/order')->loadByIncrementId($realOrderIds[0]);
-                $model = $this->getAtosMethod($order->getPayment()->getMethod());
-                unset($order);
-            }
-
-            if ($model->getCheckByIpAddress()) {
-                $ipAdresses = $model->getApiParameters()->getAtosServerIpAddresses();
-                $authorizedIps = $this->getConfig()->getAuthorizedIps();
-                $isIpOk = false;
-
-                foreach ($ipAdresses as $ipAdress) {
-                    if (in_array(trim($ipAdress), $authorizedIps)) {
-                        $isIpOk = true;
-                        break;
-                    }
-                }
-
-                if (!$isIpOk) {
-                    Mage::log($model->getApiParameters()->getIpAddress() . ' tries to connect to our server' . "\n", null, 'atos.log');
-                    return;
+            foreach ($ipAdresses as $ipAdress) {
+                if (in_array(trim($ipAdress), $authorizedIps)) {
+                    $isIpOk = true;
+                    break;
                 }
             }
 
-            if ($response['merchant_id'] != $model->getMerchantId()) {
-                Mage::log(sprintf('Response Merchant ID (%s) is not valid with configuration value (%s)' . "\n", $response['merchant_id'], $model->getMerchantId()), null, 'atos.log');
+            if (!$isIpOk) {
+                Mage::log(implde(', ', $ipAdresses) . ' tries to connect to our server' . "\n", null, 'atos.log');
                 return;
             }
-
-            foreach ($realOrderIds as $realOrderId) {
-                $order = Mage::getModel('sales/order')->loadByIncrementId($realOrderId);
-                Mage::helper('atos')->updateOrderState($order, $response, $model);
-            }
         }
-    }
 
-    /**
-     * Setting response after returning from Atos
-     *
-     * @param array $response
-     * @return object $this
-     */
-    protected function _setAtosResponse($response) {
-        if (count($response)) {
-            $this->_atosResponse = $response;
+        // Treat response
+        $order = Mage::getModel('sales/order');
+        if ($response['hash']['order_id']) {
+            $order->loadByIncrementId($response['hash']['order_id']);
         }
-        return $this;
-    }
-
-    /**
-     * Get quote model
-     *
-     * @return Mage_Sales_Model_Quote
-     */
-    protected function _getQuote() {
-        if (!$this->_quote) {
-            $this->_quote = Mage::getModel('sales/quote')->load($this->_session->getAtosQuoteId());
-
-            if (!$this->_quote->getId()) {
-                $realOrderIds = $this->_getRealOrderIds();
-                if (count($realOrderIds)) {
-                    $order = Mage::getModel('sales/order')->loadByIncrementId($realOrderIds[0]);
-                    $this->_quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
+        switch ($response['hash']['response_code']) {
+            // Success order
+            case '00':
+                if ($order->getId()) {
+                    $message = $this->__('Payment accepted by Sips');
+                    $message .= ' - ' . Mage::getSingleton('atos/api_response')->describeResponse($response['hash']);
+                    // Update state and status order
+                    $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, Quadra_Atos_Model_Config::STATUS_ACCEPTED, $message);
+                    // Send confirmation email
+                    if (!$order->getEmailSent()) {
+                        $order->sendNewOrderEmail();
+                    }
+                    // Save order
+                    $order->save();
                 }
-            }
+                break;
+            // Rejected payment
+            default:
+                if ($order->getId()) {
+                    $message = $this->__('Payment rejected by Sips');
+                    $message .= ' - ' . Mage::getSingleton('atos/api_response')->describeResponse($response['hash']);
+                    // Update state and status order
+                    $order->setState(Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW, Quadra_Atos_Model_Config::STATUS_REFUSED, $message);
+                    // Save order
+                    $order->save();
+                }
+                break;
         }
-        return $this->_quote;
     }
 
     /**
-     * Get real order ids
-     *
-     * @return array
+     * When has error in treatment
      */
-    protected function _getRealOrderIds() {
-        if (!$this->_realOrderIds) {
-            if ($this->_atosResponse) {
-                $this->_realOrderIds = explode(',', $this->_atosResponse['order_id']);
-            } else {
-                return array();
-            }
-        }
-        return $this->_realOrderIds;
+    public function failureAction() {
+        $this->loadLayout();
+        $this->getLayout()->getBlock('atos_failure')->setMessage($this->getAtosSession()->getRedirectMessage());
+        $this->getAtosSession()->unsetAll();
+        $this->renderLayout();
     }
 
     /**
-     * Get success redirection
-     *
-     * @return string
+     * When debug mode is active
      */
-    protected function _getSuccessRedirect() {
-        if ($this->_getQuote()->getIsMultiShipping())
-            return 'checkout/multishipping/success';
-        else
-            return 'checkout/onepage/success';
+    public function debugAction() {
+        $this->getResponse()->setBody(
+                $this->getLayout()
+                        ->createBlock('atos/debug', 'atos_debug')
+                        ->setObject($this->getAtosSession()->getResponse())
+                        ->toHtml());
+    }
+
+    public function saveAuroreDobAction() {
+        $dob = Mage::app()->getLocale()->date($this->getRequest()->getParam('dob'), null, null, false)->toString('yyyy-MM-dd');
+        try {
+            $this->getAtosSession()->setCustomerDob($dob);
+            $this->getResponse()->setBody('OK');
+        } catch (Exception $e) {
+            $this->getResponse()->setBody('KO - ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Treat Atos/Sips response
+     */
+    protected function _getAtosResponse($data) {
+        $response = $this->getApiResponse()
+                ->doResponse($data, array(
+            'bin_response' => $this->getConfig()->getBinResponse(),
+            'pathfile' => $this->getAtosMethod()->getConfig()->getPathfile()
+        ));
+
+        if (!isset($response['hash']['response_code'])) {
+            $this->_redirect('*/*/failure');
+            return;
+        }
+
+        if ($response['hash']['response_code'] == '-1') {
+            $this->_redirect('*/*/failure');
+            return;
+        }
+
+        return $response;
     }
 
 }

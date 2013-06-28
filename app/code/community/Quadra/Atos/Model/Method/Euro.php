@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 1997-2012 Quadra Informatique
+ * 1997-2013 Quadra Informatique
  *
  * NOTICE OF LICENSE
  *
@@ -10,78 +10,95 @@
  * If you are unable to obtain it through the world-wide-web, please send an email
  * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
  *
- *  @author Quadra Informatique <ecommerce@quadra-informatique.fr>
- *  @copyright 1997-2013 Quadra Informatique
- *  @version Release: $Revision: 2.1.2 $
- *  @license http://www.opensource.org/licenses/OSL-3.0  Open Software License (OSL 3.0)
+ * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
+ * @copyright 1997-2013 Quadra Informatique
+ * @version Release: $Revision: 3.0.0 $
+ * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
-class Quadra_Atos_Model_Method_Euro extends Quadra_Atos_Model_Method_Default {
+class Quadra_Atos_Model_Method_Euro extends Quadra_Atos_Model_Method_Abstract {
 
-    private $_url       = null;
-    private $_message   = null;
-    private $_error     = false;
+    protected $_code                = 'atos_euro';
+    protected $_formBlockType       = 'atos/form_euro';
+    protected $_infoBlockType       = 'atos/info_euro';
+    protected $_redirectBlockType   = 'atos/redirect_euro';
 
-    protected $_code          = 'atos_euro';
-    protected $_formBlockType = 'atos/euro_form';
-    protected $_infoBlockType = 'atos/euro_info';
+    /**
+     * Payment Method features
+     * @var bool
+     */
+    protected $_isInitializeNeeded      = true;
+    protected $_canUseForMultishipping  = false;
 
+    /**
+     * First call to the Atos server
+     */
     public function callRequest() {
-        $quote = $this->getQuote();
+        // Affectation des paramètres obligatoires
+	$parameters = "merchant_id=" . $this->getConfig()->getMerchantId();
+	$parameters .= " merchant_country=" . $this->getConfig()->getMerchantCountry();
+	$parameters .= " amount=" . $this->_getAmount();
+	$parameters .= " currency_code=" . $this->getConfig()->getCurrencyCode($this->_getQuote()->getQuoteCurrencyCode());
 
-        if (!(int)$quote->getId()) {
-            $quote = Mage::getModel('sales/quote')->load($this->getCheckout()->getAtosQuoteId());
-        }
+	// Initialisation du chemin du fichier pathfile
+	$parameters .= " pathfile=" . $this->getConfig()->getPathfile();
 
-        $billing = $quote->getBillingAddress();
+	// Affectation dynamique des autres paramètres
+        $parameters .= " normal_return_url=" . $this->getConfig()->getNormalReturnUrl();
+        $parameters .= " cancel_return_url=" . $this->getConfig()->getCancelReturnUrl();
+        $parameters .= " automatic_response_url=" . $this->getConfig()->getAutomaticResponseUrl();
+        $parameters .= " language=" . $this->getConfig()->getLanguageCode();
+        $parameters .= " payment_means=" . $this->getPaymentMeans();
+        $parameters .= " capture_mode=" . Quadra_Atos_Model_Config::PAYMENT_ACTION_CAPTURE;
+        $parameters .= " customer_id=" . $this->_getCustomerId();
+        $parameters .= " customer_email=" . $this->_getCustomerEmail();
+        $parameters .= " customer_ip_address=" . $this->_getCustomerIpAddress();
+        $parameters .= " data=\"" . $this->_getEuroData() . str_replace(',', '\;', $this->getConfig()->getSelectedDataFieldKeys()) . "\"";
+        $parameters .= " order_id=" . $this->_getOrderId();
 
-        $parameters = array(
-            'bin_request' => $this->getBinRequest(),
-            'bank' => $this->getBank(),
-            'merchant_id' => $this->getMerchantId(),
-            'payment_means' => '1EUROCOM,2',
-            'url' => array(
-                'cancel' => $this->getCancelReturnUrl(),
-                'normal' => $this->getNormalReturnUrl(),
-                'automatic' => $this->getAutomaticReturnUrl()
-            ),
-            //On récupère les informations clients pour les envoyer à 1euro.com
-            'command' => ' data="1EUROCOM_DATA=' . $billing->getPrefix() . '#' . $billing->getLastname() . '#' . $billing->getFirstname() . '#' . $billing->getStreet1() . '#' . $billing->getStreet2() . '#' . $billing->getStreet3() . '#' . $billing->getPostcode() . '#' . $billing->getCity() . '#FR##' . $billing->getTelephone() . '#0#0#12##1EU#WEB"'
-        );
+        // Initialisation du chemin de l'executable request
+	$binPath = $this->getConfig()->getBinRequest();
 
-        $sips = $this->getApiRequest()->doRequest($parameters);
+        $sips = $this->getApiRequest()->doRequest($parameters, $binPath);
 
         if (($sips['code'] == "") && ($sips['error'] == "")) {
             $this->_error = true;
-            $this->_message = Mage::helper('atos')->__('Call Bin Request Error - Check path to the file or command line for debug');
+            $this->_message = Mage::helper('atos')->__('<br /><center>Call request file error</center><br />Executable file request not found (%s)', $binPath);
         } elseif ($sips['code'] != 0) {
             $this->_error = true;
-            $this->_message = Mage::helper('atos')->__($sips['error']);
+            $this->_message = Mage::helper('atos')->__('<br /><center>Call payment API error</center><br />Error message: %s', $sips['error']);
         } else {
-            $regs = array();
-
-            if (preg_match('/<form [^>]*action="([^"]*)"[^>]*>(.*)<\/form>/i', $sips['message'], $regs)) {
-                $this->_url = $regs[1];
-                $this->_message = $regs[2];
-            } else {
-                $this->_error = true;
-                $this->_message = 'Call Bin Request Error - Check path to the file or command line for debug';
-            }
+            // Active debug
+            $this->_message = $sips['error'] . '<br />';
+            $this->_response = $sips['message'];
         }
-
-        if (array_key_exists('command', $sips))
-            Mage::getModel('atos/log_request')->logRequest($sips['command']);
     }
 
-    public function getSystemUrl() {
-        return $this->_url;
+    /**
+     * Get Payment Means
+     *
+     * @return string
+     */
+    public function getPaymentMeans() {
+        return '1EUROCOM,2';
     }
 
-    public function getSystemMessage() {
-        return $this->_message;
-    }
+    protected function _getEuroData() {
+        $billing = $this->_getOrder()->getBillingAddress();
 
-    public function getSystemError() {
-        return $this->_error;
+        $data = '1EUROCOM_DATA=';
+        $data .= $billing->getPrefix() . '#';
+        $data .= $billing->getLastname() . '#';
+        $data .= $billing->getFirstname() . '#';
+        $data .= $billing->getStreet1() . '#';
+        $data .= $billing->getStreet2() . '#';
+        $data .= $billing->getStreet3() . '#';
+        $data .= $billing->getPostcode() . '#';
+        $data .= $billing->getCity() . '#';
+        $data .= 'FR##';
+        $data .= $billing->getTelephone() . '#';
+        $data .= '0#0#12##1EU#WEB;';
+
+        return $data;
     }
 
 }

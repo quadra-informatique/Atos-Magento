@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 1997-2012 Quadra Informatique
+ * 1997-2013 Quadra Informatique
  *
  * NOTICE OF LICENSE
  *
@@ -10,81 +10,98 @@
  * If you are unable to obtain it through the world-wide-web, please send an email
  * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
  *
- *  @author Quadra Informatique <ecommerce@quadra-informatique.fr>
- *  @copyright 1997-2013 Quadra Informatique
- *  @version Release: $Revision: 2.1.2 $
- *  @license http://www.opensource.org/licenses/OSL-3.0  Open Software License (OSL 3.0)
+ * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
+ * @copyright 1997-2013 Quadra Informatique
+ * @version Release: $Revision: 3.0.0 $
+ * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
-class Quadra_Atos_Model_Method_Standard extends Quadra_Atos_Model_Method_Default {
+class Quadra_Atos_Model_Method_Standard extends Quadra_Atos_Model_Method_Abstract {
 
-    private $_url       = null;
-    private $_message   = null;
-    private $_error     = false;
+    protected $_code                = 'atos_standard';
+    protected $_formBlockType       = 'atos/form_standard';
+    protected $_infoBlockType       = 'atos/info_standard';
+    protected $_redirectBlockType   = 'atos/redirect_standard';
 
-    protected $_code          = 'atos_standard';
-    protected $_formBlockType = 'atos/standard_form';
-    protected $_infoBlockType = 'atos/standard_info';
+    /**
+     * Payment Method features
+     * @var bool
+     */
+    protected $_isInitializeNeeded      = true;
+    protected $_canUseForMultishipping  = false;
 
     /**
      * First call to the Atos server
      */
     public function callRequest() {
-        $data = str_replace(',', '\;', $this->getDataFieldKeys());
+        // Affectation des paramètres obligatoires
+	$parameters = "merchant_id=" . $this->getConfig()->getMerchantId();
+	$parameters .= " merchant_country=" . $this->getConfig()->getMerchantCountry();
+	$parameters .= " amount=" . $this->_getAmount();
+	$parameters .= " currency_code=" . $this->getConfig()->getCurrencyCode($this->_getQuote()->getQuoteCurrencyCode());
 
-        $command = ' data=' . $data;
+	// Initialisation du chemin du fichier pathfile
+	$parameters .= " pathfile=" . $this->getConfig()->getPathfile();
 
-        $parameters = array(
-            'command' => $command,
-            'bin_request' => $this->getBinRequest(),
-            'templatefile' => $this->getTemplatefile(),
-            'capture' => array(
-                'capture_mode' => $this->getCaptureMode(),
-                'capture_day' => $this->getCaptureDay()
-            ),
-            'bank' => $this->getBank(),
-            'merchant_id' => $this->getMerchantId(),
-            'payment_means' => $this->getPaymentMeans(),
-            'url' => array(
-                'cancel' => $this->getCancelReturnUrl(),
-                'normal' => $this->getNormalReturnUrl(),
-                'automatic' => $this->getAutomaticReturnUrl()
-            )
-        );
+	// Affectation dynamique des autres paramètres
+        $parameters .= " normal_return_url=" . $this->getConfig()->getNormalReturnUrl();
+        $parameters .= " cancel_return_url=" . $this->getConfig()->getCancelReturnUrl();
+        $parameters .= " automatic_response_url=" . $this->getConfig()->getAutomaticResponseUrl();
+        $parameters .= " language=" . $this->getConfig()->getLanguageCode();
+        $parameters .= " payment_means=" . $this->getPaymentMeans();
 
-        $sips = $this->getApiRequest()->doRequest($parameters);
+        if ($this->_getCaptureDay() > 0)
+            $parameters .= " capture_day=" . $this->_getCaptureDay();
+
+        $parameters .= " capture_mode=" . $this->_getCaptureMode();
+        $parameters .= " customer_id=" . $this->_getCustomerId();
+        $parameters .= " customer_email=" . $this->_getCustomerEmail();
+        $parameters .= " customer_ip_address=" . $this->_getCustomerIpAddress();
+        $parameters .= " data=" . str_replace(',', '\;', $this->getConfig()->getSelectedDataFieldKeys());
+        $parameters .= " order_id=" . $this->_getOrderId();
+
+        // Initialisation du chemin de l'executable request
+	$binPath = $this->getConfig()->getBinRequest();
+
+        $sips = $this->getApiRequest()->doRequest($parameters, $binPath);
 
         if (($sips['code'] == "") && ($sips['error'] == "")) {
             $this->_error = true;
-            $this->_message = Mage::helper('atos')->__('Call Bin Request Error - Check path to the file or command line for debug');
+            $this->_message = Mage::helper('atos')->__('<br /><center>Call request file error</center><br />Executable file request not found (%s)', $binPath);
         } elseif ($sips['code'] != 0) {
             $this->_error = true;
-            $this->_message = Mage::helper('atos')->__($sips['error']);
+            $this->_message = Mage::helper('atos')->__('<br /><center>Call payment API error</center><br />Error message: %s', $sips['error']);
         } else {
-            $regs = array();
-
-            if (preg_match('/<form [^>]*action="([^"]*)"[^>]*>(.*)<\/form>/i', $sips['message'], $regs)) {
-                $this->_url = $regs[1];
-                $this->_message = $regs[2];
-            } else {
-                $this->_error = true;
-                $this->_message = Mage::helper('atos')->__('Call Bin Request Error - Check path to the file or command line for debug');
-            }
+            // Active debug
+            $this->_message = $sips['error'] . '<br />';
+            $this->_response = $sips['message'];
         }
-
-        if (array_key_exists('command', $sips))
-            Mage::getModel('atos/log_request')->logRequest($sips['command']);
     }
 
-    public function getSystemUrl() {
-        return $this->_url;
+    /**
+     * Get Payment Means
+     *
+     * @return string
+     */
+    public function getPaymentMeans() {
+        return str_replace(',', ',2,', Mage::getStoreConfig('payment/atos_standard/cctypes')) . ',2';
     }
 
-    public function getSystemMessage() {
-        return $this->_message;
+    /**
+     * Get capture day
+     *
+     * @return int
+     */
+    protected function _getCaptureDay() {
+        return (int) Mage::getStoreConfig('payment/atos_standard/capture_day');
     }
 
-    public function getSystemError() {
-        return $this->_error;
+    /**
+     * Get capture mode
+     *
+     * @return string
+     */
+    protected function _getCaptureMode() {
+        return $this->getConfig()->getPaymentAction(Mage::getStoreConfig('payment/atos_standard/payment_action'));
     }
 
 }

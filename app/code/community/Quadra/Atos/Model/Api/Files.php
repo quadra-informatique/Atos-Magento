@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 1997-2012 Quadra Informatique
+ * 1997-2013 Quadra Informatique
  *
  * NOTICE OF LICENSE
  *
@@ -10,255 +10,119 @@
  * If you are unable to obtain it through the world-wide-web, please send an email
  * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
  *
- *  @author Quadra Informatique <ecommerce@quadra-informatique.fr>
- *  @copyright 1997-2013 Quadra Informatique
- *  @version Release: $Revision: 2.1.2 $
- *  @license http://www.opensource.org/licenses/OSL-3.0  Open Software License (OSL 3.0)
+ * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
+ * @copyright 1997-2013 Quadra Informatique
+ * @version Release: $Revision: 3.0.0 $
+ * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
-class Quadra_Atos_Model_Api_Files extends Quadra_Atos_Model_Abstract {
+class Quadra_Atos_Model_Api_Files {
 
-    public function getPathfileName($bank = null, $merchand_id = null) {
-        $path = DS . 'lib' . DS . 'atos' . DS;
-        $fullPath = Mage::getBaseDir('base') . $path;
+    public function generatePathfileFile($merchantId, $fileName, $directoryPath, $certificateType = '') {
+        $content = '#########################################################################' . "\n";
+        $content .= '#' . "\n";
+        $content .= '#	Pathfile' . "\n";
+        $content .= '#' . "\n";
+        $content .= '#	Liste des fichiers paramètres utilisés par le module de paiement' . "\n";
+        $content .= '#' . "\n";
+        $content .= '#########################################################################' . "\n";
+        $content .= '#' . "\n";
+        $content .= '#' . "\n";
+        $content .= '#-------------------------------------------------------------------------' . "\n";
+        $content .= '# Activation (YES) / Désactivation (NO) du mode DEBUG' . "\n";
+        $content .= '#-------------------------------------------------------------------------' . "\n";
+        $content .= '#' . "\n";
+        $content .= 'DEBUG!NO!' . "\n";
+        $content .= '#' . "\n";
+        $content .= '# ------------------------------------------------------------------------' . "\n";
+        $content .= '# Chemin vers le répertoire des logos depuis le web alias  ' . "\n";
+        $content .= '# Exemple pour le répertoire www.merchant.com/atos/payment/logo/' . "\n";
+        $content .= '# indiquer:' . "\n";
+        $content .= '# ------------------------------------------------------------------------' . "\n";
+        $content .= '#' . "\n";
+        $content .= 'D_LOGO!' . Mage::getBaseUrl('media') . 'atos/logo/!' . "\n";
+        $content .= '#' . "\n";
+        $content .= '# --------------------------------------------------------------------------' . "\n";
+        $content .= '#  Fichiers paramètres liés à l\'api sips paiement	' . "\n";
+        $content .= '# --------------------------------------------------------------------------' . "\n";
+        $content .= '#' . "\n";
+        $content .= '# Fichier des paramètres sips' . "\n";
+        $content .= '#' . "\n";
+        $content .= 'F_DEFAULT!' . $directoryPath . 'parmcom.' . $merchantId . '!' . "\n";
+        $content .= '#' . "\n";
+        $content .= '# Fichier paramètre commercant' . "\n";
+        $content .= '#' . "\n";
+        $content .= 'F_PARAM!' . $directoryPath . 'parmcom!' . "\n";
+        $content .= '#' . "\n";
+        $content .= '# Certificat du commercant' . "\n";
+        $content .= '#' . "\n";
+        $content .= 'F_CERTIFICATE!' . $directoryPath . 'certif!' . "\n";
+        $content .= '#' . "\n";
 
-        if (is_dir($fullPath)) {
-            if (isset($merchand_id)) {
-                $pathfileName = $path . 'parmcom.' . $bank;
-                $pathfile = Mage::getBaseDir('base') . $path . 'pathfile.' . $merchand_id;
-            } else {
-                $parmcom = self::getInstalledParmcom();
-                $pathfileName = $path . 'pathfile.' . $parmcom[0]['value'];
-                $pathfile = Mage::getBaseDir('base') . $pathfileName;
-            }
-
-            if (!file_exists($pathfile)) {
-                $content = '#########################################################################' . "\n";
-                $content .= '#' . "\n";
-                $content .= '# Pathfile' . "\n";
-                $content .= '#' . "\n";
-                $content .= '# Liste fichiers parametres utilises par le module de paiement' . "\n";
-                $content .= '#' . "\n";
-                $content .= '#########################################################################' . "\n";
-                $content .= "\n";
-                $content .= '# ------------------------------------------------------------------------' . "\n";
-                $content .= '# Recuperation des logos' . "\n";
-                $content .= '# ------------------------------------------------------------------------' . "\n";
-                $content .= '#' . "\n";
-                $content .= 'D_LOGO!' . Mage::getBaseUrl() . 'atos/i/m/g/!' . "\n";
-                $content .= '#' . "\n";
-                $content .= '#------------------------------------------------------------------------' . "\n";
-                $content .= '# Fichiers parametres de l\'api' . "\n";
-                $content .= '#------------------------------------------------------------------------' . "\n";
-                $content .= '#' . "\n";
-                $content .= '# Repertoire des fichiers de parametres' . "\n";
-                $content .= '#' . "\n";
-                $content .= 'D_PARM!' . Mage::getBaseDir('base') . '!' . "\n";
-                $content .= '#' . "\n";
-                $content .= '# Certificat du commercant' . "\n";
-                $content .= '#' . "\n";
-                $content .= 'F_CERTIFICATE!D_PARM!' . $path . 'certif!' . "\n";
-                $content .= '#' . "\n";
-                $content .= '# Fichier parametre commercant' . "\n";
-                $content .= '#' . "\n";
-                $content .= 'F_PARAM!D_PARM!' . $path . 'parmcom!' . "\n";
-                $content .= '#' . "\n";
-                $content .= '# Fichier des parametres communs' . "\n";
-                $content .= '#' . "\n";
-                $content .= 'F_DEFAULT!D_PARM!' . $pathfileName . '!' . "\n";
-                $content .= '#' . "\n";
-                $content .= '# --------------------------------------------------------------------------' . "\n";
-                $content .= '# End of file' . "\n";
-                $content .= '# --------------------------------------------------------------------------' . "\n";
-
-                if (($fp = fopen($pathfile, 'w'))) {
-                    fputs($fp, $content);
-                    fclose($fp);
-                }
-            }
+        if ($certificateType != '') {
+            $content .= '# Type du certificat' . "\n";
+            $content .= '#' . "\n";
+            $content .= 'F_CTYPE!' . $certificateType . '!' . "\n";
+            $content .= '#' . "\n";
         }
 
-        return $pathfile;
-    }
+        $content .= '# --------------------------------------------------------------------------' . "\n";
+        $content .= '# End of file' . "\n";
+        $content .= '# --------------------------------------------------------------------------' . "\n";
 
-    public function getCertificate() {
-        $certificate = null;
-
-        foreach (self::getInstalledCertificates() as $current) {
-            if (!isset($current['test'])) {
-                return $current;
-            }
-
-            if (!isset($certificate)) {
-                $certificate = $current;
-            }
+        if (($fp = fopen($directoryPath . $fileName, 'w'))) {
+            fputs($fp, $content);
+            fclose($fp);
         }
-
-        return $certificate;
     }
 
-    public function getInstalledCertificates() {
-        $certificates = array();
-        $path = Mage::getBaseDir('base') . DS . 'lib' . DS . 'atos';
+    public function generateParmcomFile($merchantId, $fileName, $directoryPath, $data) {
+        $content = '###############################################################################' . "\n";
+        $content .= '#' . "\n";
+        $content .= '# Fichier des paramètres du commercant' . "\n";
+        $content .= '#' . "\n";
+        $content .= '# Remarque : Ce fichier paramètre est sous la responsabilité du commercant' . "\n";
+        $content .= '#' . "\n";
+        $content .= '###############################################################################' . "\n\n";
+        $content .= '# URL de retour automatique de la reponse du paiement' . "\n";
+        $content .= 'AUTO_RESPONSE_URL!' . $data['auto_response_url'] . '!' . "\n\n";
+        $content .= '# URL de traitement d\'un paiement refusé' . "\n";
+        $content .= 'CANCEL_URL!' . $data['cancel_url'] . '!' . "\n\n";
+        $content .= '# URL de retour suite à un paiement accepté' . "\n";
+        $content .= 'RETURN_URL!' . $data['return_url'] . '!' . "\n\n";
+        $content .= '# Logo central' . "\n";
+        $content .= 'ADVERT!!' . "\n\n";
+        $content .= '# Nom du fichier en fond d\'écran des pages de paiement' . "\n";
+        $content .= 'BACKGROUND!!' . "\n\n";
+        $content .= '# Logo d\'annulation (affichage d\'un bouton si non renseigné)' . "\n";
+        $content .= 'CANCEL_LOGO!!' . "\n\n";
+        $content .= '# Liste des cartes acceptées par le commercant' . "\n";
+        $content .= 'CARD_LIST!' . $data['card_list'] . '!' . "\n\n";
+        $content .= '# Code devise (978=EURO)' . "\n";
+        $content .= 'CURRENCY!' . $data['currency'] . '!' . "\n\n";
+        $content .= '# Code langage de l\'acheteur (fr=francais)' . "\n";
+        $content .= 'LANGUAGE!' . $data['language'] . '!' . "\n\n";
+        $content .= '# Le logo du commercant (s\'affiche en haut à gauche de la page de paiement)' . "\n";
+        $content .= 'LOGO!!' . "\n\n";
+        $content .= '# Le logo du commercant (s\'affiche en haut à droite de la page de paiement)' . "\n";
+        $content .= 'LOGO2!!' . "\n\n";
+        $content .= '# Code pays du commercant' . "\n";
+        $content .= 'MERCHANT_COUNTRY!' . $data['merchant_country'] . '!' . "\n\n";
+        $content .= '# Code langage du commercant' . "\n";
+        $content .= 'MERCHANT_LANGUAGE!' . $data['merchant_language'] . '!' . "\n\n";
+        $content .= '# Liste des moyens de paiement acceptés' . "\n";
+        $content .= 'PAYMENT_MEANS!' . $data['payment_means'] . '!' . "\n\n";
+        $content .= '# Logo de retour a la boutique apres le paiement (bouton si non renseigné)' . "\n";
+        $content .= 'RETURN_LOGO!!' . "\n\n";
+        $content .= '# Logo de validation du paiement (affichage d\'un bouton si non renseigné)' . "\n";
+        $content .= 'SUBMIT_LOGO!!' . "\n\n";
+        $content .= '# Fichier template' . "\n";
+        $content .= 'TEMPLATE!!' . "\n\n";
+        $content .= '# END OF FILE' . "\n";
 
-        if (is_dir($path)) {
-            $dir = dir($path);
-            while ($file = $dir->read()) {
-                $data = explode('.', $file);
-                $n = sizeof($data) - 1;
-
-                if ($data[0] == 'certif') {
-                    $certificates[] = self::getCertificateInfo($data[$n]);
-                }
-            }
-
-            sort($certificates);
-            $dir->close();
+        if (($fp = fopen($directoryPath . $fileName, 'w'))) {
+            fputs($fp, $content);
+            fclose($fp);
         }
-
-        return $certificates;
-    }
-
-    public function getCertificateInfo($id) {
-        $certificates = self::getPredefinedCertificates();
-        return (isset($certificates[$id]))? $certificates[$id] : array('value' => $id, 'label' => $id);
-    }
-
-    public function getPredefinedCertificates() {
-        $predefined = array(
-            '013044876511111' => array(
-                'value' => '013044876511111',
-                'label' => Mage::helper('atos')->__('Test account eTransaction')
-            ),
-            '014213245611111' => array(
-                'value' => '014213245611111',
-                'label' => Mage::helper('atos')->__('Test account Sogenactif')
-            ),
-            '038862749811111' => array(
-                'value' => '038862749811111',
-                'label' => Mage::helper('atos')->__('Test account CyberPlus')
-            ),
-            '082584341411111' => array(
-                'value' => '082584341411111',
-                'label' => Mage::helper('atos')->__('Test account Mercanet')
-            ),
-            '014141675911111' => array(
-                'value' => '014141675911111',
-                'label' => Mage::helper('atos')->__('Test account Scelluis')
-            ),
-            '014295303911111' => array(
-                'value' => '014295303911111',
-                'label' => Mage::helper('atos')->__('Test account Sherlocks')
-            ),
-            '000000014005555' => array(
-                'value' => '000000014005555',
-                'label' => Mage::helper('atos')->__('Test account Aurore Cetelem')
-            )
-        );
-
-        return $predefined;
-    }
-
-    public function getInstalledParmcom() {
-        $parmcom = array();
-        $path = Mage::getBaseDir('base') . DS . 'lib' . DS . 'atos'. DS;
-
-        if (is_dir($path)) {
-            $dir = dir($path);
-
-            while ($file = $dir->read()) {
-
-                $data = explode('.', $file);
-
-                if (($data[0] == 'parmcom') && file_exists($path . 'certif.fr.' . $data[1])) {
-                    $parmcom[] = array(
-                        'value' => $file,
-                        'label' => $file
-                    );
-                }
-            }
-
-            sort($parmcom);
-            $dir->close();
-        }
-
-        if (empty($parmcom)) {
-            Mage::throwException('Parcom files doesn\'t exist !');
-        }
-
-        return $parmcom;
-    }
-
-    public function getBankParmcom() {
-        $parmcom = array();
-        $path = Mage::getBaseDir('base') . DS . 'lib' . DS . 'atos';
-
-        if (is_dir($path)) {
-            $dir = dir($path);
-
-            $certificates = array();
-            foreach (self::getInstalledCertificates() as $certif)
-                $certificates[] = $certif['value'];
-
-            while ($file = $dir->read()) {
-                $data = explode('.', $file);
-                $n = sizeof($data) - 1;
-
-                if ($data[0] == 'parmcom' && !in_array($data[$n], $certificates)) {
-                    $parmcom[] = self::getBankInfo($data[$n]);
-                }
-            }
-
-            sort($parmcom);
-            $dir->close();
-        }
-
-        return $parmcom;
-    }
-
-    public function getBankInfo($id) {
-        $bank = self::getPredefinedBanks();
-        return (isset($bank[$id])) ? $bank[$id] : array('value' => $id, 'label' => $id);
-    }
-
-    public function getPredefinedBanks() {
-        return array(
-            'citelis' => array(
-                'value' => 'citelis',
-                'label' => Mage::helper('atos')->__('Citélis')
-            ),
-            'cyberplus' => array(
-                'value' => 'cyberplus',
-                'label' => Mage::helper('atos')->__('Cyberplus')
-            ),
-            'elysnet' => array(
-                'value' => 'elysnet',
-                'label' => Mage::helper('atos')->__('Elys Net')
-            ),
-            'etransactions' => array(
-                'value' => 'etransactions',
-                'label' => Mage::helper('atos')->__('e-transactions')
-            ),
-            'mercanet' => array(
-                'value' => 'mercanet',
-                'label' => Mage::helper('atos')->__('Merc@net')
-            ),
-            'sherlocks' => array(
-                'value' => 'sherlocks',
-                'label' => Mage::helper('atos')->__('Sherlock\'s')
-            ),
-            'scelliusnet' => array(
-                'value' => 'scelliusnet',
-                'label' => Mage::helper('atos')->__('Scellius Net')
-            ),
-            'sogenactif' => array(
-                'value' => 'sogenactif',
-                'label' => Mage::helper('atos')->__('Sogenactif')
-            ),
-            'webaffaires' => array(
-                'value' => 'webaffaires',
-                'label' => Mage::helper('atos')->__('Webaffaires')
-            )
-        );
     }
 
 }
