@@ -1,4 +1,3 @@
-.htaccess
 .htaccess.sample
 LICENSE.html
 *.txt
@@ -113,4 +112,5 @@ skin/frontend/default/german/
 skin/frontend/default/iphone/
 skin/frontend/default/modern/
 skin/install/
+skin/
 var/
