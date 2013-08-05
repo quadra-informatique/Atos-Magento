@@ -12,7 +12,7 @@
  *
  * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
  * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.0 $
+ * @version Release: $Revision: 3.0.1 $
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 class Quadra_Atos_Model_Config extends Varien_Object {
@@ -98,9 +98,7 @@ class Quadra_Atos_Model_Config extends Varien_Object {
                 'payment_means' => implode(',2,', Mage::getModel('atos/adminhtml_system_config_source_payment_cctype')->getCardValues()) . ',2'
             );
 
-            Mage::getSingleton('atos/api_files')->generateParmcomFile(
-                $this->getMerchantId(), 'parmcom.' . $this->getMerchantId(), $directoryPath, $data
-            );
+            Mage::getSingleton('atos/api_files')->generateParmcomFile('parmcom.' . $this->getMerchantId(), $directoryPath, $data);
         }
 
         return $path;

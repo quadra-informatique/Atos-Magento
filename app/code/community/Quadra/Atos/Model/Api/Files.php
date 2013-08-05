@@ -12,12 +12,17 @@
  *
  * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
  * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.0 $
+ * @version Release: $Revision: 3.0.1 $
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 class Quadra_Atos_Model_Api_Files {
 
     public function generatePathfileFile($merchantId, $fileName, $directoryPath, $certificateType = '') {
+        D_PARM!home/abcde/fghijklm/nopqrstu/vwxyz/test/sample/plug!
+
+F_CERTIFICATE!D_PARM!/kjqdh/jhchjqgfq/toto/paiement/api/certif!
+
+
         $content = '#########################################################################' . "\n";
         $content .= '#' . "\n";
         $content .= '#	Pathfile' . "\n";
@@ -45,20 +50,22 @@ class Quadra_Atos_Model_Api_Files {
         $content .= '#  Fichiers paramètres liés à l\'api sips paiement	' . "\n";
         $content .= '# --------------------------------------------------------------------------' . "\n";
         $content .= '#' . "\n";
+        $content .= 'D_PARAM!' . $directoryPath . '!' . "\n";
+        $content .= '#' . "\n";
         $content .= '# Fichier des paramètres sips' . "\n";
         $content .= '#' . "\n";
-        $content .= 'F_DEFAULT!' . $directoryPath . 'parmcom.' . $merchantId . '!' . "\n";
+        $content .= 'F_DEFAULT!D_PARM!parmcom.' . $merchantId . '!' . "\n";
         $content .= '#' . "\n";
         $content .= '# Fichier paramètre commercant' . "\n";
         $content .= '#' . "\n";
-        $content .= 'F_PARAM!' . $directoryPath . 'parmcom!' . "\n";
+        $content .= 'F_PARAM!D_PARAM!parmcom!' . "\n";
         $content .= '#' . "\n";
         $content .= '# Certificat du commercant' . "\n";
         $content .= '#' . "\n";
-        $content .= 'F_CERTIFICATE!' . $directoryPath . 'certif!' . "\n";
+        $content .= 'F_CERTIFICATE!D_PARAM!certif!' . "\n";
         $content .= '#' . "\n";
 
-        if ($certificateType != '') {
+        if ($certificateType != '' && $certificateType != $merchantId) {
             $content .= '# Type du certificat' . "\n";
             $content .= '#' . "\n";
             $content .= 'F_CTYPE!' . $certificateType . '!' . "\n";
@@ -75,7 +82,7 @@ class Quadra_Atos_Model_Api_Files {
         }
     }
 
-    public function generateParmcomFile($merchantId, $fileName, $directoryPath, $data) {
+    public function generateParmcomFile($fileName, $directoryPath, $data) {
         $content = '###############################################################################' . "\n";
         $content .= '#' . "\n";
         $content .= '# Fichier des paramètres du commercant' . "\n";
