@@ -18,11 +18,6 @@
 class Quadra_Atos_Model_Api_Files {
 
     public function generatePathfileFile($merchantId, $fileName, $directoryPath, $certificateType = '') {
-        D_PARM!home/abcde/fghijklm/nopqrstu/vwxyz/test/sample/plug!
-
-F_CERTIFICATE!D_PARM!/kjqdh/jhchjqgfq/toto/paiement/api/certif!
-
-
         $content = '#########################################################################' . "\n";
         $content .= '#' . "\n";
         $content .= '#	Pathfile' . "\n";
