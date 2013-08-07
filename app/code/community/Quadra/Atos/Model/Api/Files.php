@@ -49,7 +49,7 @@ class Quadra_Atos_Model_Api_Files {
         $content .= '#' . "\n";
         $content .= '# Fichier des paramètres sips' . "\n";
         $content .= '#' . "\n";
-        $content .= 'F_DEFAULT!D_PARM!parmcom.' . $merchantId . '!' . "\n";
+        $content .= 'F_DEFAULT!D_PARAM!parmcom.' . $merchantId . '!' . "\n";
         $content .= '#' . "\n";
         $content .= '# Fichier paramètre commercant' . "\n";
         $content .= '#' . "\n";
