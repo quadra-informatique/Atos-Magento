@@ -12,7 +12,7 @@
  *
  * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
  * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.1 $
+ * @version Release: $Revision: 3.0.2 $
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 class Quadra_Atos_Model_Api_Response {
@@ -38,7 +38,7 @@ class Quadra_Atos_Model_Api_Response {
         $hash = array();
 
         list (,
-            $hash['response_code'],
+            $hash['code'],
             $hash['error'],
             $hash['merchant_id'],
             $hash['merchant_country'],

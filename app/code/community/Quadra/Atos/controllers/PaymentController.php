@@ -12,7 +12,7 @@
  *
  * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
  * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.1 $
+ * @version Release: $Revision: 3.0.2 $
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
@@ -29,31 +29,10 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
     /**
      * Get current Atos Payment Method
      *
-     * @return Quadra_Atos_Model_Method_Standard|Quadra_Atos_Model_Method_Several|Quadra_Atos_Model_Method_Euro|Quadra_Atos_Model_Method_Aurore
+     * @return Quadra_Atos_Model_Method_Standard
      */
-    public function getAtosMethod() {
-        $quoteId = (int) $this->getAtosSession()->getQuoteId();
-        $quote = Mage::getModel('sales/quote')->load($quoteId);
-        $method = $quote->getPayment()->getMethod();
-
-        switch ($method) {
-            case 'atos_standard' :
-                $atosMethod = Mage::getSingleton('atos/method_standard');
-                break;
-            case 'atos_several' :
-                $atosMethod = Mage::getSingleton('atos/method_several');
-                break;
-            case 'atos_aurore' :
-                $atosMethod = Mage::getSingleton('atos/method_aurore');
-                break;
-            case 'atos_euro' :
-                $atosMethod = Mage::getSingleton('atos/method_euro');
-                break;
-            default :
-                $atosMethod = Mage::getSingleton('atos/method_standard');
-        }
-
-        return $atosMethod;
+    public function getMethodInstance() {
+        return Mage::getSingleton('atos/method_standard');
     }
 
     /**
@@ -97,9 +76,7 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
      */
     public function redirectAction() {
         $this->getAtosSession()->setQuoteId($this->getCheckoutSession()->getLastQuoteId());
-        $quote = $this->getCheckoutSession()->getQuote();
-        $method = $quote->getPayment()->getMethod();
-        $this->getResponse()->setBody($this->getLayout()->createBlock($this->getAtosMethod($method)->getRedirectBlockType(), 'atos_redirect')->toHtml());
+        $this->getResponse()->setBody($this->getLayout()->createBlock($this->getMethodInstance()->getRedirectBlockType(), 'atos_redirect')->toHtml());
         $this->getCheckoutSession()->unsQuoteId();
         $this->getCheckoutSession()->unsRedirectUrl();
     }
@@ -237,9 +214,9 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
         $response = $this->_getAtosResponse($_REQUEST['DATA']);
 
         // Check IP address
-        if ($this->getAtosMethod()->getConfig()->getCheckByIpAddress()) {
+        if ($this->getMethodInstance()->getConfig()->getCheckByIpAddress()) {
             $ipAdresses = $response['atos_server_ip_adresses'];
-            $authorizedIps = $this->getAtosMethod()->getConfig()->getAuthorizedIps();
+            $authorizedIps = $this->getMethodInstance()->getConfig()->getAuthorizedIps();
             $isIpOk = false;
 
             foreach ($ipAdresses as $ipAdress) {
@@ -328,15 +305,15 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
         $response = $this->getApiResponse()
                 ->doResponse($data, array(
             'bin_response' => $this->getConfig()->getBinResponse(),
-            'pathfile' => $this->getAtosMethod()->getConfig()->getPathfile()
+            'pathfile' => $this->getMethodInstance()->getConfig()->getPathfile()
         ));
 
-        if (!isset($response['hash']['response_code'])) {
+        if (!isset($response['hash']['code'])) {
             $this->_redirect('*/*/failure');
             return;
         }
 
-        if ($response['hash']['response_code'] == '-1') {
+        if ($response['hash']['code'] == '-1') {
             $this->_redirect('*/*/failure');
             return;
         }

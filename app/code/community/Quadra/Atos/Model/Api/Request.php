@@ -12,7 +12,7 @@
  *
  * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
  * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.1 $
+ * @version Release: $Revision: 3.0.2 $
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 class Quadra_Atos_Model_Api_Request {
@@ -33,11 +33,11 @@ class Quadra_Atos_Model_Api_Request {
         );
 
         if (!isset($sips['code'])) {
-            Mage::throwException($sips_result);
+            Mage::logException(new Exception($sips_result));
         }
 
         if ($sips['code'] == '-1') {
-            Mage::throwException($sips['error']);
+            Mage::logException(new Exception($sips['error']));
         }
 
         return $sips;

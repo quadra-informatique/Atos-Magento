@@ -12,7 +12,7 @@
  *
  * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
  * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.1 $
+ * @version Release: $Revision: 3.0.2 $
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Method_Abstract {
@@ -35,7 +35,28 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return string
      */
-    abstract public function getPaymentMeans();
+    abstract protected function _getPaymentMeans();
+
+    /**
+     * Get normal return URL
+     *
+     * @return string
+     */
+    abstract protected function _getNormalReturnUrl();
+
+    /**
+     * Get cancel return URL
+     *
+     * @return string
+     */
+    abstract protected function _getCancelReturnUrl();
+
+    /**
+     * Get automatic response URL
+     *
+     * @return string
+     */
+    abstract protected function _getAutomaticResponseUrl();
 
     /**
      * Instantiate state and set it to state object

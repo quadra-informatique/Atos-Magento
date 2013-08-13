@@ -12,7 +12,7 @@
  *
  * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
  * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.1 $
+ * @version Release: $Revision: 3.0.2 $
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 class Quadra_Atos_Model_Config extends Varien_Object {
@@ -282,33 +282,6 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      */
     public function getAuthorizedIps() {
         return explode(',', Mage::getStoreConfig('atos_api/' . $this->_method . '/authorized_ips'));
-    }
-
-    /**
-     * Get normal return URL
-     *
-     * @return string
-     */
-    public function getNormalReturnUrl() {
-        return Mage::getUrl('atos/payment/normal', array('_secure' => true));
-    }
-
-    /**
-     * Get cancel return URL
-     *
-     * @return string
-     */
-    public function getCancelReturnUrl() {
-        return Mage::getUrl('atos/payment/cancel', array('_secure' => true));
-    }
-
-    /**
-     * Get automatic response URL
-     *
-     * @return string
-     */
-    public function getAutomaticResponseUrl() {
-        return Mage::getUrl('atos/payment/automatic', array('_secure' => true));
     }
 
 }

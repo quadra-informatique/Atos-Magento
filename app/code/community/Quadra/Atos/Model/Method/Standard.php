@@ -12,7 +12,7 @@
  *
  * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
  * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.1 $
+ * @version Release: $Revision: 3.0.2 $
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 class Quadra_Atos_Model_Method_Standard extends Quadra_Atos_Model_Method_Abstract {
@@ -43,11 +43,11 @@ class Quadra_Atos_Model_Method_Standard extends Quadra_Atos_Model_Method_Abstrac
 	$parameters .= " pathfile=" . $this->getConfig()->getPathfile();
 
 	// Affectation dynamique des autres paramètres
-        $parameters .= " normal_return_url=" . $this->getConfig()->getNormalReturnUrl();
-        $parameters .= " cancel_return_url=" . $this->getConfig()->getCancelReturnUrl();
-        $parameters .= " automatic_response_url=" . $this->getConfig()->getAutomaticResponseUrl();
+        $parameters .= " normal_return_url=" . $this->_getNormalReturnUrl();
+        $parameters .= " cancel_return_url=" . $this->_getCancelReturnUrl();
+        $parameters .= " automatic_response_url=" . $this->_getAutomaticResponseUrl();
         $parameters .= " language=" . $this->getConfig()->getLanguageCode();
-        $parameters .= " payment_means=" . $this->getPaymentMeans();
+        $parameters .= " payment_means=" . $this->_getPaymentMeans();
 
         if ($this->_getCaptureDay() > 0)
             $parameters .= " capture_day=" . $this->_getCaptureDay();
@@ -82,8 +82,35 @@ class Quadra_Atos_Model_Method_Standard extends Quadra_Atos_Model_Method_Abstrac
      *
      * @return string
      */
-    public function getPaymentMeans() {
+    protected function _getPaymentMeans() {
         return str_replace(',', ',2,', Mage::getStoreConfig('payment/atos_standard/cctypes')) . ',2';
+    }
+
+    /**
+     * Get normal return URL
+     *
+     * @return string
+     */
+    protected function _getNormalReturnUrl() {
+        return Mage::getUrl('atos/payment_standard/normal', array('_secure' => true));
+    }
+
+    /**
+     * Get cancel return URL
+     *
+     * @return string
+     */
+    protected function _getCancelReturnUrl() {
+        return Mage::getUrl('atos/payment_standard/cancel', array('_secure' => true));
+    }
+
+    /**
+     * Get automatic response URL
+     *
+     * @return string
+     */
+    protected function _getAutomaticResponseUrl() {
+        return Mage::getUrl('atos/payment_standard/automatic', array('_secure' => true));
     }
 
     /**
