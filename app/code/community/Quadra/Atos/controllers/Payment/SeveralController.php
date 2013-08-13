@@ -15,6 +15,8 @@
  * @version Release: $Revision: 3.0.2 $
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
+require_once('Quadra/Atos/controllers/PaymentController.php');
+
 class Quadra_Atos_Payment_SeveralController extends Quadra_Atos_PaymentController {
 
     /**

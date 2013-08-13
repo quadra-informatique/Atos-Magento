@@ -27,15 +27,6 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
     }
 
     /**
-     * Get current Atos Payment Method
-     *
-     * @return Quadra_Atos_Model_Method_Standard
-     */
-    public function getMethodInstance() {
-        return Mage::getSingleton('atos/method_standard');
-    }
-
-    /**
      * Get Atos/Sips Standard config
      *
      * @return Quadra_Atos_Model_Config
