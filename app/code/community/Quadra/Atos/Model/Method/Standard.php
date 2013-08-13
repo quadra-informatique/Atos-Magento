@@ -114,6 +114,15 @@ class Quadra_Atos_Model_Method_Standard extends Quadra_Atos_Model_Method_Abstrac
     }
 
     /**
+     * Return Order place redirect url
+     *
+     * @return string
+     */
+    public function getOrderPlaceRedirectUrl() {
+        return Mage::getUrl('atos/payment_standard/redirect', array('_secure' => true));
+    }
+
+    /**
      * Get capture day
      *
      * @return int

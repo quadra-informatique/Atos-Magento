@@ -110,6 +110,15 @@ class Quadra_Atos_Model_Method_Several extends Quadra_Atos_Model_Method_Abstract
         return Mage::getUrl('atos/payment_several/automatic', array('_secure' => true));
     }
 
+    /**
+     * Return Order place redirect url
+     *
+     * @return string
+     */
+    public function getOrderPlaceRedirectUrl() {
+        return Mage::getUrl('atos/payment_several/redirect', array('_secure' => true));
+    }
+
     protected function _getNbPayment() {
         return Mage::getStoreConfig('payment/atos_several/nb_payment');
     }

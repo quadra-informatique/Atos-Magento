@@ -110,6 +110,15 @@ class Quadra_Atos_Model_Method_Aurore extends Quadra_Atos_Model_Method_Abstract 
     }
 
     /**
+     * Return Order place redirect url
+     *
+     * @return string
+     */
+    public function getOrderPlaceRedirectUrl() {
+        return Mage::getUrl('atos/payment_aurore/redirect', array('_secure' => true));
+    }
+
+    /**
      * Get customer date of birth
      *
      * @return string

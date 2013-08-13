@@ -59,6 +59,13 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
     abstract protected function _getAutomaticResponseUrl();
 
     /**
+     * Return Order place redirect url
+     *
+     * @return string
+     */
+    abstract function getOrderPlaceRedirectUrl();
+
+    /**
      * Instantiate state and set it to state object
      * @param string $paymentAction
      * @param Varien_Object
@@ -83,15 +90,6 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      */
     public function getRedirectBlockType() {
         return $this->_redirectBlockType;
-    }
-
-    /**
-     * Return Order place redirect url
-     *
-     * @return string
-     */
-    public function getOrderPlaceRedirectUrl() {
-        return Mage::getUrl('atos/payment/redirect', array('_secure' => true));
     }
 
     /**

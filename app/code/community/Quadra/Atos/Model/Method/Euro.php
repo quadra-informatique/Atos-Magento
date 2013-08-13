@@ -109,6 +109,15 @@ class Quadra_Atos_Model_Method_Euro extends Quadra_Atos_Model_Method_Abstract {
         return Mage::getUrl('atos/payment_euro/automatic', array('_secure' => true));
     }
 
+    /**
+     * Return Order place redirect url
+     *
+     * @return string
+     */
+    public function getOrderPlaceRedirectUrl() {
+        return Mage::getUrl('atos/payment_euro/redirect', array('_secure' => true));
+    }
+
     protected function _getEuroData() {
         $billing = $this->_getOrder()->getBillingAddress();
 
