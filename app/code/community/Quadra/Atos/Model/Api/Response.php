@@ -120,25 +120,25 @@ class Quadra_Atos_Model_Api_Response {
     public function describeResponse($response, $return = 'string') {
         $array = array();
 
-        $string = Mage::helper('atos')->__('Numero de transaction : %s', $response['transaction_id']) . "\n";
-        $string.= Mage::helper('atos')->__('Mode de capture : %s', $response['capture_mode']) . "\n";
+        $string = Mage::helper('atos')->__('Numero de transaction : %s', $response['transaction_id']) . "<br />";
+        $string.= Mage::helper('atos')->__('Mode de capture : %s', $response['capture_mode']) . "<br />";
 
         if (isset($response['capture_day']) && is_numeric($response['capture_day'])) {
             if ($response['capture_day'] == 0) {
-                $string.= Mage::helper('atos')->__('Jour avant la capture : capture immediate') . "\n";
+                $string.= Mage::helper('atos')->__('Jour avant la capture : capture immediate') . "<br />";
             } else {
-                $string.= Mage::helper('atos')->__('Jour avant la capture : %s', $response['capture_day']) . "\n";
+                $string.= Mage::helper('atos')->__('Jour avant la capture : %s', $response['capture_day']) . "<br />";
             }
         }
 
-        $string.= Mage::helper('atos')->__('Type de carte de credit : %s', $response['payment_means']) . "\n";
+        $string.= Mage::helper('atos')->__('Type de carte de credit : %s', $response['payment_means']) . "<br />";
 
         // Credit card number
         if (isset($response['card_number']) && !empty($response['card_number'])) {
             $cc = explode('.', $response['card_number']);
             $array['card_number'] = $cc[0] . ' #### #### ##' . $cc[1];
 
-            $string.= Mage::helper('atos')->__('Numero de carte bancaire : %s', $array['card_number']) . "\n";
+            $string.= Mage::helper('atos')->__('Numero de carte bancaire : %s', $array['card_number']) . "<br />";
         }
 
         if (isset($response['cvv_flag'])) {
@@ -168,11 +168,11 @@ class Quadra_Atos_Model_Api_Response {
                             break;
                     }
 
-                    $string .= Mage::helper('atos')->__('A propos du cryptogramme de la carte : %s', $array['cvv_response_code']) . "\n";
+                    $string .= Mage::helper('atos')->__('A propos du cryptogramme de la carte : %s', $array['cvv_response_code']) . "<br />";
 
                     if (isset($response['cvv_key'])) {
                         $array['cvv_key'] = $response['cvv_key'];
-                        $string .= Mage::helper('atos')->__('Cryptogramme de la carte de credit : %s', $response['cvv_key']) . "\n";
+                        $string .= Mage::helper('atos')->__('Cryptogramme de la carte de credit : %s', $response['cvv_key']) . "<br />";
                     }
                     break;
             }
@@ -217,7 +217,7 @@ class Quadra_Atos_Model_Api_Response {
                     $array['response_code'] = "ATOS Transaction rejetee - code invalide " . $response['response_code'];
             }
 
-            $string .= Mage::helper('atos')->__('Code reponse de la banque : %s', $array['response_code']) . "\n";
+            $string .= Mage::helper('atos')->__('Code reponse de la banque : %s', $array['response_code']) . "<br />";
         }
 
         if (isset($response['bank_response_code'])) {
@@ -325,7 +325,7 @@ class Quadra_Atos_Model_Api_Response {
                 }
 
                 if (isset($array['bank_response_code'])) {
-                    $string .= Mage::helper('atos')->__('Code reponse de la Banque : %s', $array['bank_response_code']) . "\n";
+                    $string .= Mage::helper('atos')->__('Code reponse de la Banque : %s', $array['bank_response_code']) . "<br />";
                 }
             }
         }
@@ -348,18 +348,18 @@ class Quadra_Atos_Model_Api_Response {
                     $array['complementary_code'] = "Le numero de carte n'est pas dans une plage de meme nationalite que celle du commercant";
                     break;
                 case '99':
-                    $array['complementary_code'] = "Le serveur MERCANET a un rencontre un probleme lors du traitement d�un des controles locaux complementaires";
+                    $array['complementary_code'] = "Le serveur MERCANET a un rencontre un probleme lors du traitement d'un des controles locaux complementaires";
                     break;
             }
 
             if (isset($array['complementary_code'])) {
-                $string .= Mage::helper('atos')->__('Controle supplementaire : %s', $array['complementary_code']) . "\n";
+                $string .= Mage::helper('atos')->__('Controle supplementaire : %s', $array['complementary_code']) . "<br />";
             }
         }
 
         if (isset($response['data'])) {
             $array['data'] = $response['data'];
-            $string .= $response['data'] . "\n";
+            $string .= $response['data'] . "<br />";
         }
 
         if ($return == 'string') {
