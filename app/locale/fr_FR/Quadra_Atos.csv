@@ -80,6 +80,8 @@
 "The certificate file must be placed in lib/atos/param directory in magento's root folder.","Le certificat doit être placé dans le dossier lib/atos/param à la racine de Magento."
 "The control number is absent in the authorization request","Le numéro de contrôle est absent de la demande d'autorisation"
 "The MERCANET server encountered a problem during the processing of one of the additional local controls","Le serveur MERCANET a un rencontré un problème lors du traitement d'un des contrôles locaux complémentaires"
+"The payment platform has rejected your transaction with the message: <strong>%s</strong>.","La plate-forme de paiement a rejeté votre transaction avec le message : <strong>%s</strong>."
+"The payment platform has rejected your transaction with the message: <strong>%s</strong>, because the bank send the error: <strong>%s</strong>.","La plate-forme de paiement a rejeté votre transaction avec le message : <strong>%s</strong>, car la banque a retourné l'erreur : <strong>%s</strong>."
 "The request file must be placed in lib/atos/bin directory in magento's root folder.","Le fichier request doit être placé dans le dossier lib/atos/bin à la racine de Magento."
 "The response file must be placed in lib/atos/bin directory in magento's root folder.","Le fichier response doit être placé dans le dossier lib/atos/bin à la racine de Magento."
 "The used card belongs to the merchant's grey list","La carte utilisée appartient à la liste grise du commerçant"
@@ -97,3 +99,4 @@
 "Untreated control number","Numéro de contrôle non traité"
 "Validation","Validation"
 "You will be redirected to the payment server after the finalization of your order.","Vous serez redirigé vers le serveur de paiement après la finalisation de votre commande."
+"Your payment has been rejected","Votre paiement a été rejeté"

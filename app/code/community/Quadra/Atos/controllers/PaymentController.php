@@ -92,17 +92,19 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
         // Set redirect URL
         $response['redirect_url'] = '*/*/failure';
         // Set redirect message
-        $this->getAtosSession()->setRedirectTitle('Your payment has been rejected.');
+        $this->getAtosSession()->setRedirectTitle($this->__('Your payment has been rejected'));
         $describedResponse = Mage::getSingleton('atos/api_response')->describeResponse($response['hash'], 'array');
-        $this->getAtosSession()->setRedirectMessage('The payment platform has rejected your transaction with the message: <strong>' . $describedResponse['response_code'].'</strong>.');
+        $this->getAtosSession()->setRedirectMessage($this->__('The payment platform has rejected your transaction with the message: <strong>%s</strong>.', $describedResponse['response_code']));
 
         // Cancel order
         if ($response['hash']['order_id']) {
             $order = Mage::getModel('sales/order')->loadByIncrementId($response['hash']['order_id']);
-            if ($response['hash']['response_code'] == 17)
+            if ($response['hash']['response_code'] == 17) {
                 $message = Mage::getSingleton('atos/api_response')->describeResponse($response['hash']);
-            else
+            } else {
                 $message = $this->__('Automatic cancel');
+                $this->getAtosSession()->setRedirectMessage($this->__('The payment platform has rejected your transaction with the message: <strong>%s</strong>, because the bank send the error: <strong>%s</strong>.', $describedResponse['response_code'], $describedResponse['bank_response_code']));
+            }
             if ($order->getId()) {
                 Mage::helper('atos')->reorder($response['hash']['order_id']);
                 $order->cancel()
@@ -180,9 +182,9 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
                           ->save();
                 }
                 // Set redirect message
-                $this->getAtosSession()->setRedirectTitle('Your payment has been rejected.');
+                $this->getAtosSession()->setRedirectTitle($this->__('Your payment has been rejected'));
                 $describedResponse = Mage::getSingleton('atos/api_response')->describeResponse($response['hash']);
-                $this->getAtosSession()->setRedirectMessage('The payment platform has rejected your transaction with the message: <strong>' . $describedResponse['response_code'].'</strong>, because the bank send the error: <strong>' .$describedResponse['bank_response_code'].'</strong>.');
+                $this->getAtosSession()->setRedirectMessage($this->__('The payment platform has rejected your transaction with the message: <strong>%s</strong>, because the bank send the error: <strong>%s</strong>.', $describedResponse['response_code'], $describedResponse['bank_response_code']));
                 // Set redirect URL
                 $response['redirect_url'] = '*/*/failure';
                 break;
