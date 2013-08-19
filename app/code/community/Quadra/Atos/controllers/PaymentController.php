@@ -99,10 +99,14 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
         // Cancel order
         if ($response['hash']['order_id']) {
             $order = Mage::getModel('sales/order')->loadByIncrementId($response['hash']['order_id']);
+            if ($response['hash']['response_code'] == 17)
+                $message = Mage::getSingleton('atos/api_response')->describeResponse($response['hash']);
+            else
+                $message = $this->__('Automatic cancel');
             if ($order->getId()) {
                 Mage::helper('atos')->reorder($response['hash']['order_id']);
                 $order->cancel()
-                      ->addStatusToHistory($order->getStatus(), Mage::getSingleton('atos/api_response')->describeResponse($response['hash']))
+                      ->addStatusToHistory($order->getStatus(), $message)
                       ->save();
             }
         }
