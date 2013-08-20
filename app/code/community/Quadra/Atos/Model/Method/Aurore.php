@@ -32,7 +32,7 @@ class Quadra_Atos_Model_Method_Aurore extends Quadra_Atos_Model_Method_Abstract 
     /**
      * First call to the Atos server
      */
-    public function callRequest() {
+    public function callRequest() {z
         // Affectation des paramètres obligatoires
 	$parameters = "merchant_id=" . $this->getConfig()->getMerchantId();
 	$parameters .= " merchant_country=" . $this->getConfig()->getMerchantCountry();
