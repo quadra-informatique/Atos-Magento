@@ -25,24 +25,26 @@ class Quadra_Atos_Model_Method_Standard extends Quadra_Atos_Model_Method_Abstrac
     /**
      * Payment Method features
      * @var bool
-     */
-    protected $_isInitializeNeeded      = true;
+     */    
+	protected $_canCapture              = true;
     protected $_canUseForMultishipping  = false;
+	protected $_isInitializeNeeded      = true;
+	
 
     /**
      * First call to the Atos server
      */
     public function callRequest() {
         // Affectation des paramètres obligatoires
-	$parameters = "merchant_id=" . $this->getConfig()->getMerchantId();
-	$parameters .= " merchant_country=" . $this->getConfig()->getMerchantCountry();
-	$parameters .= " amount=" . $this->_getAmount();
-	$parameters .= " currency_code=" . $this->getConfig()->getCurrencyCode($this->_getQuote()->getQuoteCurrencyCode());
+		$parameters = "merchant_id=" . $this->getConfig()->getMerchantId();
+		$parameters .= " merchant_country=" . $this->getConfig()->getMerchantCountry();
+		$parameters .= " amount=" . $this->_getAmount();
+		$parameters .= " currency_code=" . $this->getConfig()->getCurrencyCode($this->_getQuote()->getQuoteCurrencyCode());
 
-	// Initialisation du chemin du fichier pathfile
-	$parameters .= " pathfile=" . $this->getConfig()->getPathfile();
+		// Initialisation du chemin du fichier pathfile
+		$parameters .= " pathfile=" . $this->getConfig()->getPathfile();
 
-	// Affectation dynamique des autres paramètres
+		// Affectation dynamique des autres paramètres
         $parameters .= " normal_return_url=" . $this->_getNormalReturnUrl();
         $parameters .= " cancel_return_url=" . $this->_getCancelReturnUrl();
         $parameters .= " automatic_response_url=" . $this->_getAutomaticResponseUrl();
@@ -60,7 +62,7 @@ class Quadra_Atos_Model_Method_Standard extends Quadra_Atos_Model_Method_Abstrac
         $parameters .= " order_id=" . $this->_getOrderId();
 
         // Initialisation du chemin de l'executable request
-	$binPath = $this->getConfig()->getBinRequest();
+		$binPath = $this->getConfig()->getBinRequest();
 
         // Debug
         if ($this->getConfigData('debug'))

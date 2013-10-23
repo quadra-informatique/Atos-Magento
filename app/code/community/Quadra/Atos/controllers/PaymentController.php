@@ -249,6 +249,27 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
                     $message .= '<br /><br />' . $this->getApiResponse()->describeResponse($response['hash']);
                     // Update state and status order
                     $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, Quadra_Atos_Model_Config::STATUS_ACCEPTED, $message);
+					// Set transaction and capture
+					if ($this->getMethodInstance()->canCapture()) {	
+						$payment = $order->getPayment();
+						$payment->setTransactionId($response['hash']['transaction_id']);
+						Mage::log($response['hash']);
+						/*$payment->setCcExpMonth(12);
+						$payment->setCcExpYear(2013);
+						$payment->setCcOwner('toto');
+						$payment->setCcType('VI');
+						$payment->setCcStatusDescription('description');
+						$payment->setCcLast4(1234);
+						$payment->setCcNumberEnc('abcd');*/
+
+						$invoice = $order->prepareInvoice();
+						$invoice->register()->capture();
+						Mage::getModel('core/resource_transaction')
+								->addObject($invoice)->addObject($invoice->getOrder())
+								->save();
+						$transactionMessage = Mage::helper('atos')->__('Invoice #%s created', $invoice->getIncrementId());
+						$order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, $transactionMessage, true);
+					}					
                     // Send confirmation email
                     if (!$order->getEmailSent()) {
                         $order->sendNewOrderEmail();
