@@ -26,6 +26,7 @@ class Quadra_Atos_Model_Method_Standard extends Quadra_Atos_Model_Method_Abstrac
      * Payment Method features
      * @var bool
      */    
+	protected $_canAuthorize			= true;
 	protected $_canCapture              = true;
     protected $_canUseForMultishipping  = false;
 	protected $_isInitializeNeeded      = true;
