@@ -249,14 +249,15 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
                     $message .= '<br /><br />' . $this->getApiResponse()->describeResponse($response['hash']);
                     // Update state and status order
                     $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, Quadra_Atos_Model_Config::STATUS_ACCEPTED, $message);
-										
+							
+					// Set transaction
+					$payment = $order->getPayment();
+					$payment->setTransactionId($response['hash']['transaction_id']);
+					$payment->setCcType($response['hash']['payment_means']);
+							
 					if ($response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_CAPTURE) {
-						// Set transaction and capture
-						if ($this->getMethodInstance()->canCapture()) {	
-							$payment = $order->getPayment();
-							$payment->setTransactionId($response['hash']['transaction_id']);
-							$payment->setCcType($response['hash']['payment_means']);
-
+						// Capture
+						if ($this->getMethodInstance()->canCapture()) {								
 							$invoice = $order->prepareInvoice();
 							$invoice->register()->capture();
 							Mage::getModel('core/resource_transaction')
@@ -266,9 +267,10 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
 							$order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, $transactionMessage, true);
 						}	
 					} elseif ($response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_AUTHORIZE) {
-						// Set transaction and authorisation
-						if ($this->getMethodInstance()->canAuthorize()) {
-							
+						// Authorize
+						if ($this->getMethodInstance()->canAuthorize()) {	
+							$payment->setIsTransactionPending(false);
+							$payment->authorize(false, $order->getBaseTotalDue());
 						}
 					}
                     // Send confirmation email
