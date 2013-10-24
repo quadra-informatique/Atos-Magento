@@ -265,6 +265,7 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
 						if ($this->getMethodInstance()->canCapture()) {								
 							$invoice = $order->prepareInvoice();
 							$invoice->register()->capture();
+							$invoice->sendEmail();
 							Mage::getModel('core/resource_transaction')
 									->addObject($invoice)->addObject($invoice->getOrder())
 									->save();
