@@ -8,21 +8,22 @@
  * This source file is subject to the Open Software License (OSL 3.0) that is available
  * through the world-wide-web at this URL: http://www.opensource.org/licenses/OSL-3.0
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
+ * to modules@quadra-informatique.fr so we can send you a copy immediately.
  *
- * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
+ * @author Quadra Informatique <modules@quadra-informatique.fr>
  * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.3 $
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
-class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
+class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
+{
 
     /**
      * Get Atos Api Response Model
      *
      * @return Quadra_Atos_Model_Api_Response
      */
-    public function getApiResponse() {
+    public function getApiResponse()
+    {
         return Mage::getSingleton('atos/api_response');
     }
 
@@ -31,7 +32,8 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
      *
      * @return Quadra_Atos_Model_Config
      */
-    public function getConfig() {
+    public function getConfig()
+    {
         return Mage::getSingleton('atos/config');
     }
 
@@ -40,7 +42,8 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
      *
      * @return Mage_Checkout_Model_Session
      */
-    public function getCheckoutSession() {
+    public function getCheckoutSession()
+    {
         return Mage::getSingleton('checkout/session');
     }
 
@@ -49,7 +52,8 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
      *
      * @return Mage_Customer_Model_Session
      */
-    public function getCustomerSession() {
+    public function getCustomerSession()
+    {
         return Mage::getSingleton('customer/session');
     }
 
@@ -58,14 +62,16 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
      *
      * @return Quadra_Atos_Model_Session
      */
-    public function getAtosSession() {
+    public function getAtosSession()
+    {
         return Mage::getSingleton('atos/session');
     }
 
     /**
      * When a customer chooses Atos/Sips Standard on Checkout/Payment page
      */
-    public function redirectAction() {
+    public function redirectAction()
+    {
         $this->getAtosSession()->setQuoteId($this->getCheckoutSession()->getLastQuoteId());
         $this->getResponse()->setBody($this->getLayout()->createBlock($this->getMethodInstance()->getRedirectBlockType(), 'atos_redirect')->toHtml());
         $this->getCheckoutSession()->unsQuoteId();
@@ -75,7 +81,8 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
     /**
      * When a customer cancel payment from Atos/Sips Standard.
      */
-    public function cancelAction() {
+    public function cancelAction()
+    {
         if (!array_key_exists('DATA', $_REQUEST)) {
             // Set redirect message
             $this->getAtosSession()->setRedirectMessage($this->__('An error occured: no data received.'));
@@ -114,8 +121,8 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
             if ($order->getId()) {
                 Mage::helper('atos')->reorder($response['hash']['order_id']);
                 $order->cancel()
-                      ->addStatusToHistory($order->getStatus(), $message)
-                      ->save();
+                        ->addStatusToHistory($order->getStatus(), $message)
+                        ->save();
             }
         }
 
@@ -127,7 +134,8 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
     /**
      * When customer returns from Atos/Sips payment platform
      */
-    public function normalAction() {
+    public function normalAction()
+    {
         if (!array_key_exists('DATA', $_REQUEST)) {
             // Set redirect message
             $this->getAtosSession()->setRedirectMessage($this->__('An error occured: no data received.'));
@@ -168,7 +176,7 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
             case '00':
                 if ($order->getId()) {
                     $order->addStatusToHistory($order->getStatus(), $this->__('Customer returned successfully from Atos/Sips payment platform.'))
-                          ->save();
+                            ->save();
                 }
                 $this->getCheckoutSession()->getQuote()->setIsActive(false)->save();
                 // Set redirect URL
@@ -182,7 +190,7 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
                 if ($order->getId()) {
                     Mage::helper('atos')->reorder($response['hash']['order_id']);
                     $order->addStatusToHistory($order->getStatus(), $errorMessage)
-                          ->save();
+                            ->save();
                 }
                 // Set redirect message
                 $this->getAtosSession()->setRedirectTitle($this->__('Your payment has been rejected'));
@@ -202,7 +210,8 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
     /**
      * When Atos/Sips returns
      */
-    public function automaticAction() {
+    public function automaticAction()
+    {
         if (!array_key_exists('DATA', $_REQUEST)) {
             // Log error
             $errorMessage = $this->__('Automatic response received but no data received for order #%s.', $this->getCheckoutSession()->getLastRealOrderId());
@@ -249,37 +258,37 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
                     $message .= '<br /><br />' . $this->getApiResponse()->describeResponse($response['hash']);
                     // Update state and status order
                     $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, Quadra_Atos_Model_Config::STATUS_ACCEPTED, $message);
-					
-					// Send confirmation email
+
+                    // Send confirmation email
                     if (!$order->getEmailSent()) {
                         $order->sendNewOrderEmail();
                     }
-							
-					// Set transaction
-					$payment = $order->getPayment();
-					$payment->setTransactionId($response['hash']['transaction_id']);
-					$payment->setCcType($response['hash']['payment_means']);
-							
-					if ($response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_CAPTURE) {
-						// Capture
-						if ($this->getMethodInstance()->canCapture()) {								
-							$invoice = $order->prepareInvoice();
-							$invoice->register()->capture();
-							$invoice->sendEmail();
-							Mage::getModel('core/resource_transaction')
-									->addObject($invoice)->addObject($invoice->getOrder())
-									->save();
-							$transactionMessage = Mage::helper('atos')->__('Invoice #%s created', $invoice->getIncrementId());
-							$order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, $transactionMessage, true);
-						}	
-					} elseif ($response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_AUTHORIZE) {
-						// Authorize
-						if ($this->getMethodInstance()->canAuthorize()) {	
-							$payment->setIsTransactionPending(false);
-							$payment->authorize(false, $order->getBaseTotalDue());
-						}
-					}
-                    
+
+                    // Set transaction
+                    $payment = $order->getPayment();
+                    $payment->setTransactionId($response['hash']['transaction_id']);
+                    $payment->setCcType($response['hash']['payment_means']);
+
+                    if ($response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_CAPTURE) {
+                        // Capture
+                        if ($this->getMethodInstance()->canCapture()) {
+                            $invoice = $order->prepareInvoice();
+                            $invoice->register()->capture();
+                            $invoice->sendEmail();
+                            Mage::getModel('core/resource_transaction')
+                                    ->addObject($invoice)->addObject($invoice->getOrder())
+                                    ->save();
+                            $transactionMessage = Mage::helper('atos')->__('Invoice #%s created', $invoice->getIncrementId());
+                            $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, $transactionMessage, true);
+                        }
+                    } elseif ($response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_AUTHORIZE) {
+                        // Authorize
+                        if ($this->getMethodInstance()->canAuthorize()) {
+                            $payment->setIsTransactionPending(false);
+                            $payment->authorize(false, $order->getBaseTotalDue());
+                        }
+                    }
+
                     // Save order
                     $order->save();
                 }
@@ -301,7 +310,8 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
     /**
      * When has error in treatment
      */
-    public function failureAction() {
+    public function failureAction()
+    {
         $this->loadLayout();
         $this->getLayout()->getBlock('atos_failure')->setTitle($this->getAtosSession()->getRedirectTitle());
         $this->getLayout()->getBlock('atos_failure')->setMessage($this->getAtosSession()->getRedirectMessage());
@@ -309,7 +319,8 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
         $this->renderLayout();
     }
 
-    public function saveAuroreDobAction() {
+    public function saveAuroreDobAction()
+    {
         $dob = Mage::app()->getLocale()->date($this->getRequest()->getParam('dob'), null, null, false)->toString('yyyy-MM-dd');
         try {
             $this->getAtosSession()->setCustomerDob($dob);
@@ -322,7 +333,8 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
     /**
      * Treat Atos/Sips response
      */
-    protected function _getAtosResponse($data) {
+    protected function _getAtosResponse($data)
+    {
         $response = $this->getApiResponse()
                 ->doResponse($data, array(
             'bin_response' => $this->getConfig()->getBinResponse(),

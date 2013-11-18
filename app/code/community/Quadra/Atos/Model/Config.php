@@ -8,25 +8,25 @@
  * This source file is subject to the Open Software License (OSL 3.0) that is available
  * through the world-wide-web at this URL: http://www.opensource.org/licenses/OSL-3.0
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
+ * to modules@quadra-informatique.fr so we can send you a copy immediately.
  *
- * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
+ * @author Quadra Informatique <modules@quadra-informatique.fr>
  * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.3 $
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
-class Quadra_Atos_Model_Config extends Varien_Object {
+class Quadra_Atos_Model_Config extends Varien_Object
+{
 
     const PAYMENT_ACTION_CAPTURE = 'AUTHOR_CAPTURE';
     const PAYMENT_ACTION_AUTHORIZE = 'VALIDATION';
-
     const STATUS_ACCEPTED = 'payment_accepted';
     const STATUS_REFUSED = 'payment_refused';
 
     protected $_method;
     protected $_merchantId;
 
-    public function initMethod($method) {
+    public function initMethod($method)
+    {
         if (empty($this->_method)) {
             $this->_method = $method;
         }
@@ -38,7 +38,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return string|null
      */
-    public function getPaymentAction($action) {
+    public function getPaymentAction($action)
+    {
         switch ($action) {
             case Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE:
                 return self::PAYMENT_ACTION_AUTHORIZE;
@@ -52,7 +53,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return array
      */
-    public function getPaymentActions() {
+    public function getPaymentActions()
+    {
         $paymentActions = array(
             Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE_CAPTURE => Mage::helper('adminhtml')->__('Author Capture'),
             Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE => Mage::helper('adminhtml')->__('Validation')
@@ -65,7 +67,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return string
      */
-    public function getCertificate() {
+    public function getCertificate()
+    {
         return Mage::getStoreConfig('atos_api/' . $this->_method . '/certificate_path');
     }
 
@@ -74,14 +77,15 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return string
      */
-    public function getPathfile() {
+    public function getPathfile()
+    {
         $fileName = 'pathfile.' . $this->getMerchantId();
         $directoryPath = Mage::getBaseDir('lib') . DS . 'atos' . DS . 'param' . DS;
         $path = $directoryPath . $fileName;
 
         if (!file_exists($path)) {
             Mage::getSingleton('atos/api_files')->generatePathfileFile(
-                $this->getMerchantId(), $fileName, $directoryPath, pathinfo($this->getCertificate(), PATHINFO_EXTENSION)
+                    $this->getMerchantId(), $fileName, $directoryPath, pathinfo($this->getCertificate(), PATHINFO_EXTENSION)
             );
         }
 
@@ -109,7 +113,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return string
      */
-    public function getMerchantId() {
+    public function getMerchantId()
+    {
         if (empty($this->_merchantId)) {
             $matches = array();
             preg_match("/certif.[a-z]{2}.[0-9]+/", $this->getCertificate(), $matches);
@@ -127,7 +132,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return string
      */
-    public function getMerchantCountry() {
+    public function getMerchantCountry()
+    {
         $countries = Mage::getStoreConfig('general/country');
         $currentCountryCode = strtolower($countries['default']);
         $atosConfigCountries = $this->getMerchantCountries();
@@ -151,7 +157,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return array
      */
-    public function getMerchantCountries() {
+    public function getMerchantCountries()
+    {
         $countries = array();
         foreach (Mage::getConfig()->getNode('global/payment/atos/merchant_country')->asArray() as $data) {
             $countries[$data['code']] = $data['name'];
@@ -165,7 +172,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return string|boolean
      */
-    public function getCurrencyCode($currentCurrencyCode) {
+    public function getCurrencyCode($currentCurrencyCode)
+    {
         $atosConfigCurrencies = $this->getCurrencies();
 
         if (array_key_exists($currentCurrencyCode, $atosConfigCurrencies))
@@ -179,7 +187,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return array
      */
-    public function getCurrencies() {
+    public function getCurrencies()
+    {
         $currencies = array();
         foreach (Mage::getConfig()->getNode('global/payment/atos/currencies')->asArray() as $data) {
             $currencies[$data['iso']] = $data['code'];
@@ -193,7 +202,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return string
      */
-    public function getLanguageCode() {
+    public function getLanguageCode()
+    {
         $language = substr(Mage::getStoreConfig('general/locale/code'), 0, 2);
         $atosConfigLanguages = $this->getLanguages();
 
@@ -216,7 +226,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return array
      */
-    public function getLanguages() {
+    public function getLanguages()
+    {
         $languages = array();
         foreach (Mage::getConfig()->getNode('global/payment/atos/languages')->asArray() as $data) {
             $languages[$data['code']] = $data['name'];
@@ -230,7 +241,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return string
      */
-    public function getSelectedDataFieldKeys() {
+    public function getSelectedDataFieldKeys()
+    {
         return str_replace(',', '\;', Mage::getStoreConfig('atos_api/' . $this->_method . '/data_field'));
     }
 
@@ -239,7 +251,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return array
      */
-    public function getDataFieldKeys() {
+    public function getDataFieldKeys()
+    {
         $types = array();
         foreach (Mage::getConfig()->getNode('global/payment/atos/data_field')->asArray() as $data) {
             $types[$data['code']] = $data['name'];
@@ -253,7 +266,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return string
      */
-    public function getBinRequest() {
+    public function getBinRequest()
+    {
         return Mage::getStoreConfig('atos_api/config_bin_files/request_path');
     }
 
@@ -262,7 +276,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return string
      */
-    public function getBinResponse() {
+    public function getBinResponse()
+    {
         return Mage::getStoreConfig('atos_api/config_bin_files/response_path');
     }
 
@@ -271,7 +286,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return int
      */
-    public function getCheckByIpAddress() {
+    public function getCheckByIpAddress()
+    {
         return (int) Mage::getStoreConfig('atos_api/' . $this->_method . '/check_ip_address');
     }
 
@@ -280,7 +296,8 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      *
      * @return array
      */
-    public function getAuthorizedIps() {
+    public function getAuthorizedIps()
+    {
         return explode(',', Mage::getStoreConfig('atos_api/' . $this->_method . '/authorized_ips'));
     }
 

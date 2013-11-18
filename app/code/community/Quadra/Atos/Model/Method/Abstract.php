@@ -8,19 +8,18 @@
  * This source file is subject to the Open Software License (OSL 3.0) that is available
  * through the world-wide-web at this URL: http://www.opensource.org/licenses/OSL-3.0
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
+ * to modules@quadra-informatique.fr so we can send you a copy immediately.
  *
- * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
+ * @author Quadra Informatique <modules@quadra-informatique.fr>
  * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.3 $
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
-abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Method_Abstract {
+abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Method_Abstract
+{
 
-    protected $_response  = null;
-    protected $_message   = null;
-    protected $_error     = false;
-
+    protected $_response = null;
+    protected $_message = null;
+    protected $_error = false;
     protected $_config;
     protected $_order;
     protected $_quote;
@@ -70,7 +69,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      * @param string $paymentAction
      * @param Varien_Object
      */
-    public function initialize($paymentAction, $stateObject) {
+    public function initialize($paymentAction, $stateObject)
+    {
         switch ($paymentAction) {
             case Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE:
             case Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE_CAPTURE:
@@ -88,7 +88,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return string
      */
-    public function getRedirectBlockType() {
+    public function getRedirectBlockType()
+    {
         return $this->_redirectBlockType;
     }
 
@@ -97,7 +98,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return string
      */
-    public function getSystemResponse() {
+    public function getSystemResponse()
+    {
         return $this->_response;
     }
 
@@ -106,7 +108,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return string
      */
-    public function getSystemMessage() {
+    public function getSystemMessage()
+    {
         return $this->_message;
     }
 
@@ -115,7 +118,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return boolean
      */
-    public function hasSystemError() {
+    public function hasSystemError()
+    {
         return $this->_error;
     }
 
@@ -124,7 +128,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return Quadra_Atos_Model_Config
      */
-    public function getConfig() {
+    public function getConfig()
+    {
         if (empty($this->_config)) {
             $config = Mage::getSingleton('atos/config');
             $this->_config = $config->initMethod($this->_code);
@@ -137,7 +142,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return Quadra_Atos_Model_Api_Request
      */
-    public function getApiRequest() {
+    public function getApiRequest()
+    {
         return Mage::getSingleton('atos/api_request');
     }
 
@@ -146,7 +152,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return Mage_Sales_Model_Quote|boolean
      */
-    protected function _getQuote() {
+    protected function _getQuote()
+    {
         if (empty($this->_quote)) {
             $quoteId = Mage::getSingleton('atos/session')->getQuoteId();
             $this->_quote = Mage::getModel('sales/quote')->load($quoteId);
@@ -159,7 +166,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return Mage_Sales_Model_Order|boolean
      */
-    protected function _getOrder() {
+    protected function _getOrder()
+    {
         if (empty($this->_order)) {
             $session = Mage::getSingleton('checkout/session');
             $this->_order = Mage::getModel('sales/order')->loadByIncrementId($session->getLastRealOrderId());
@@ -173,7 +181,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return string
      */
-    protected function _getAmount() {
+    protected function _getAmount()
+    {
         if ($this->_getOrder())
             $total = $this->_getOrder()->getTotalDue();
         else
@@ -187,7 +196,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return int
      */
-    protected function _getCustomerId() {
+    protected function _getCustomerId()
+    {
         if ($this->_getOrder())
             return (int) $this->_getOrder()->getCustomerId();
         else
@@ -199,7 +209,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return string
      */
-    protected function _getCustomerEmail() {
+    protected function _getCustomerEmail()
+    {
         if ($this->_getOrder())
             return $this->_getOrder()->getCustomerEmail();
         else
@@ -211,7 +222,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return string
      */
-    protected function _getCustomerIpAddress() {
+    protected function _getCustomerIpAddress()
+    {
         return $this->_getQuote()->getRemoteIp();
     }
 
@@ -220,7 +232,8 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return string
      */
-    protected function _getOrderId() {
+    protected function _getOrderId()
+    {
         return $this->_getOrder()->getIncrementId();
     }
 
@@ -229,21 +242,25 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return string
      */
-    protected function _getBinRequest() {
+    protected function _getBinRequest()
+    {
         return Mage::getStoreConfig('atos_api/config_bin_files/request_path');
     }
 
-    protected function _debug($data, $title = '') {
+    protected function _debug($data, $title = '')
+    {
         if (strlen($title))
             Mage::log($title, Zend_Log::DEBUG, 'payment_' . $this->getCode() . '.log', true);
         Mage::log($data, Zend_Log::DEBUG, 'payment_' . $this->getCode() . '.log', true);
     }
 
-    public function debugRequest($data) {
+    public function debugRequest($data)
+    {
         $this->_debug($data, "Request data:");
     }
 
-    public function debugResponse($data, $from = '') {
+    public function debugResponse($data, $from = '')
+    {
         ksort($data);
         $this->_debug($data, "{$from} response data:");
     }
