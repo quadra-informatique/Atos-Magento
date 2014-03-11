@@ -21,7 +21,7 @@ $installer->startSetup();
 
 $installer->run("
 
-CREATE TABLE IF NOT EXISTS `{$installer->getTable('atos/log_request')}` (
+CREATE TABLE IF NOT EXISTS `atos/log_request` (
   `entity_id` int(10) unsigned NOT NULL auto_increment,
   `order_id` varchar(50) NOT NULL ,
   `send_date` timestamp NOT NULL default CURRENT_TIMESTAMP,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `{$installer->getTable('atos/log_request')}` (
   PRIMARY KEY (`entity_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `{$installer->getTable('atos/log_response')}` (
+CREATE TABLE IF NOT EXISTS `atos/log_response` (
   `entity_id` int(10) unsigned NOT NULL auto_increment,
   `transaction_id` varchar(50) NOT NULL,
   `authorisation_id` varchar(50) NOT NULL,
