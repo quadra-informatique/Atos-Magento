@@ -230,7 +230,7 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      * @return string
      */
     protected function _getBinRequest() {
-        return Mage::getStoreConfig('atos_api/config_bin_files/request_path');
+        return Mage::getBaseDir('base') . DS . Mage::getStoreConfig('atos_api/config_bin_files/request_path');
     }
 
     protected function _debug($data, $title = '') {
