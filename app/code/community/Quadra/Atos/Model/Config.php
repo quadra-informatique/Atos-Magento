@@ -66,7 +66,7 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      * @return string
      */
     public function getCertificate() {
-        return Mage::getStoreConfig('atos_api/' . $this->_method . '/certificate_path');
+        return Mage::getBaseDir('base') . DS . Mage::getStoreConfig('atos_api/' . $this->_method . '/certificate_path');
     }
 
     /**
@@ -254,7 +254,7 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      * @return string
      */
     public function getBinRequest() {
-        return Mage::getStoreConfig('atos_api/config_bin_files/request_path');
+        return Mage::getBaseDir('base') . DS . Mage::getStoreConfig('atos_api/config_bin_files/request_path');
     }
 
     /**
@@ -263,7 +263,7 @@ class Quadra_Atos_Model_Config extends Varien_Object {
      * @return string
      */
     public function getBinResponse() {
-        return Mage::getStoreConfig('atos_api/config_bin_files/response_path');
+        return Mage::getBaseDir('base') . DS . Mage::getStoreConfig('atos_api/config_bin_files/response_path');
     }
 
     /**
