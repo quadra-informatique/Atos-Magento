@@ -249,12 +249,12 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action {
                     $message .= '<br /><br />' . $this->getApiResponse()->describeResponse($response['hash']);
                     // Update state and status order
                     $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, Quadra_Atos_Model_Config::STATUS_ACCEPTED, $message);
+                    // Save order
+                    $order->save();
                     // Send confirmation email
                     if (!$order->getEmailSent()) {
                         $order->sendNewOrderEmail();
                     }
-                    // Save order
-                    $order->save();
                 }
                 break;
             // Rejected payment
