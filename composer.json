@@ -1,0 +1,16 @@
+{
+    "name": "quadra/atos",
+    "description": "Atos Payment Module for Magento 1.4 +",
+    "license": "OSL-3.0",
+    "type": "magento-module",
+    "authors": [
+        {
+            "name": "Quadra Informatique",
+            "email": "ecommerce@quadra-informatique.fr"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}
