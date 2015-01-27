@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 1997-2013 Quadra Informatique
+ * 1997-2015 Quadra Informatique
  *
  * NOTICE OF LICENSE
  *
@@ -11,7 +11,7 @@
  * to modules@quadra-informatique.fr so we can send you a copy immediately.
  *
  * @author Quadra Informatique <modules@quadra-informatique.fr>
- * @copyright 1997-2013 Quadra Informatique
+ * @copyright 1997-2015 Quadra Informatique
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 class Quadra_Atos_Model_System_Config_Source_NumberOfPayment
