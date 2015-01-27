@@ -259,13 +259,6 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
                     // Update state and status order
                     $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, Quadra_Atos_Model_Config::STATUS_ACCEPTED, $message);
 
-                    // Save order
-                    $order->save();
-                    // Send confirmation email
-                    if (!$order->getEmailSent()) {
-                        $order->sendNewOrderEmail();
-                    }
-
                     // Set transaction
                     $payment = $order->getPayment();
                     $payment->setTransactionId($response['hash']['transaction_id']);
@@ -294,6 +287,10 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
                     // Save order
                     $order->save();
 
+                    // Send confirmation email
+                    if (!$order->getEmailSent()) {
+                        $order->sendNewOrderEmail();
+                    }
                 }
                 break;
             // Rejected payment
