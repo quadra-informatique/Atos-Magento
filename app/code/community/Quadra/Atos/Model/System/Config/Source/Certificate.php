@@ -24,13 +24,14 @@ class Quadra_Atos_Model_System_Config_Source_Certificate
         if (!$this->_options) {
             $this->_options = array();
             $this->_options[] = array('value' => '', 'label' => Mage::helper('adminhtml')->__('-- Please select --'));
-            $path = Mage::getBaseDir('base') . DS . 'lib' . DS . 'atos' . DS . 'param';
+            $relativePath = 'lib' . DS . 'atos' . DS . 'param';
+            $absolutePath = Mage::getBaseDir('base') . DS . $relativePath;
 
-            if (is_dir($path)) {
-                $dir = dir($path);
+            if (is_dir($absolutePath)) {
+                $dir = dir($absolutePath);
                 while ($file = $dir->read()) {
                     if (preg_match("/^certif/i", $file)) {
-                        $this->_options[] = array('value' => $path . DS . $file, 'label' => $file);
+                        $this->_options[] = array('value' => $relativePath . DS . $file, 'label' => $file);
                     }
                 }
 
