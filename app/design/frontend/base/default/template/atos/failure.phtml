@@ -1,0 +1,23 @@
+<?php
+/**
+ * 1997-2015 Quadra Informatique
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0) that is available
+ * through the world-wide-web at this URL: http://www.opensource.org/licenses/OSL-3.0
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to modules@quadra-informatique.fr so we can send you a copy immediately.
+ *
+ * @author Quadra Informatique <modules@quadra-informatique.fr>
+ * @copyright 1997-2015 Quadra Informatique
+ * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
+ */
+?>
+<div class="page-title">
+    <h1><?php echo ($this->getTitle()) ? $this->getTitle() : $this->__('An error occurred in the process of payment'); ?></h1>
+</div>
+<?php if ($this->getMessage()): ?>
+    <p><?php echo $this->getMessage(); ?></p>
+<?php endif; ?>
+<p><?php echo $this->__('Click <a href="%s">here</a> to continue shopping.', Mage::getUrl()) ?></p>
