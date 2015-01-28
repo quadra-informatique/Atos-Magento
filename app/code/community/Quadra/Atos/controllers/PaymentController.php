@@ -116,7 +116,11 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
                 $message = $this->getApiResponse()->describeResponse($response['hash']);
             } else {
                 $message = $this->__('Automatic cancel');
+                if (array_key_exists('bank_response_code', $describedResponse)) {
                 $this->getAtosSession()->setRedirectMessage($this->__('The payment platform has rejected your transaction with the message: <strong>%s</strong>, because the bank send the error: <strong>%s</strong>.', $describedResponse['response_code'], $describedResponse['bank_response_code']));
+                } else {
+                    $this->getAtosSession()->setRedirectMessage($this->__('The payment platform has rejected your transaction with the message: <strong>%s</strong>.', $describedResponse['response_code']));
+                }
             }
             if ($order->getId()) {
                 Mage::helper('atos')->reorder($response['hash']['order_id']);
