@@ -265,28 +265,17 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
                         $payment->setTransactionId($response['hash']['transaction_id']);
                         $data = array(
                             'cc_type' => $response['hash']['payment_means'],
-                            'cc_exp_month' => substr($response['hash']['card_validity'], 0, 4),
-                            'cc_exp_year' => substr($response['hash']['card_validity'], 4, 2),
+                            'cc_exp_month' => substr($response['hash']['card_validity'], 4, 2),
+                            'cc_exp_year' => substr($response['hash']['card_validity'], 0, 4),
                             'cc_last4' => $response['hash']['card_number']
                         );
 
                         $payment->addData($data);
                         $payment->save();
 
-                        if ($response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_CAPTURE) {
-                            // Capture
-                            if ($this->getMethodInstance()->canCapture()) {
-                                $invoice = $order->prepareInvoice();
-                                $invoice->register()->capture();
-
-                                $transactionSave = Mage::getModel('core/resource_transaction')
-                                        ->addObject($invoice)->addObject($invoice->getOrder())
-                                        ->save();
-
-                                $messages[] = Mage::helper('atos')->__('Invoice #%s created', $invoice->getIncrementId());
-                            }
-                        } elseif ($response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_AUTHORIZE) {
-                            // Authorize
+                        if ($response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_CAPTURE ||
+                                $response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_AUTHORIZE) {
+                            // Add authorization transaction
                             if (!$order->isCanceled() && $this->getMethodInstance()->canAuthorize()) {
                                 $payment->authorize(true, $order->getBaseGrandTotal());
                                 $payment->setAmountAuthorized($order->getTotalDue());
