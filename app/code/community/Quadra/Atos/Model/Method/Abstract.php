@@ -242,26 +242,20 @@ abstract class Quadra_Atos_Model_Method_Abstract extends Mage_Payment_Model_Meth
      *
      * @return string
      */
-    protected function _getBinRequest() {
-        return Mage::getBaseDir('base') . DS . Mage::getStoreConfig('atos_api/config_bin_files/request_path');
-    }
-
-    protected function _debug($data, $title = '')
+    protected function _getBinRequest()
     {
-        if (strlen($title))
-            Mage::log($title, Zend_Log::DEBUG, 'payment_' . $this->getCode() . '.log', true);
-        Mage::log($data, Zend_Log::DEBUG, 'payment_' . $this->getCode() . '.log', true);
+        return Mage::getBaseDir('base') . DS . Mage::getStoreConfig('atos_api/config_bin_files/request_path');
     }
 
     public function debugRequest($data)
     {
-        $this->_debug($data, "Request data:");
+        $this->debugData(array('type' => 'request', 'parameters' => $data));
     }
 
     public function debugResponse($data, $from = '')
     {
         ksort($data);
-        $this->_debug($data, "{$from} response data:");
+        $this->debugData(array('type' => "{$from} response", 'parameters' => $data));
     }
 
 }

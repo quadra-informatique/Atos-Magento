@@ -16,11 +16,4 @@
  */
 $installer = $this;
 $installer->startSetup();
-
-$installer->run("INSERT IGNORE INTO `{$installer->getTable('sales/order_status')}` (`status`, `label`) VALUES ('payment_accepted', 'Payment accepted by Sips')");
-$installer->run("INSERT IGNORE INTO `{$installer->getTable('sales/order_status')}` (`status`, `label`) VALUES ('payment_refused', 'Payment refused by Sips')");
-
-$installer->run("INSERT IGNORE INTO `{$installer->getTable('sales/order_status_state')}` (`status`, `state`, `is_default`) VALUES ('payment_accepted', 'processing', 0)");
-$installer->run("INSERT IGNORE INTO `{$installer->getTable('sales/order_status_state')}` (`status`, `state`, `is_default`) VALUES ('payment_refused', 'payment_review', 0)");
-
 $installer->endSetup();
