@@ -282,6 +282,7 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
 
                                 // Create invoice
                                 $invoice = $order->prepareInvoice();
+                                $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
                                 $invoice->register();
 
                                 $transactionSave = Mage::getModel('core/resource_transaction')
