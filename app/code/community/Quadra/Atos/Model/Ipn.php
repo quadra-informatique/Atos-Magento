@@ -166,11 +166,11 @@ class Quadra_Atos_Model_Ipn
                 $messages[] = $this->__('Payment accepted by Sips') . '<br /><br />' . $this->_api->describeResponse($this->_response['hash']);
 
                 // Update payment
-                $this->_processOrderPayment();
+                $this->_processOrderPayment($order);
 
                 // Create invoice
                 if ($this->_invoiceFlag) {
-                    $invoiceId = $this->_processInvoice();
+                    $invoiceId = $this->_processInvoice($order);
                     $messages[] = Mage::helper('atos')->__('Invoice #%s created', $invoiceId);
                 }
 
@@ -204,16 +204,17 @@ class Quadra_Atos_Model_Ipn
                 }
                 break;
             default: // Rejected payment or error
+                $this->_processCancellation($order);
         }
     }
 
     /**
      * Update order payment
+     *
+     * @param Mage_Sales_Model_Order $order
      */
-    protected function _processOrderPayment()
+    protected function _processOrderPayment($order)
     {
-        $order = $this->_getOrder();
-
         try {
             // Set transaction
             $payment = $order->getPayment();
@@ -251,12 +252,11 @@ class Quadra_Atos_Model_Ipn
     /**
      * Create invoice
      *
+     * @param Mage_Sales_Model_Order $order
      * @return string
      */
-    protected function _processInvoice()
+    protected function _processInvoice($order)
     {
-        $order = $this->_getOrder();
-
         try {
             $this->_invoice = $order->prepareInvoice();
             $this->_invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
@@ -278,10 +278,11 @@ class Quadra_Atos_Model_Ipn
 
     /**
      * Cancel order
+     *
+     * @param Mage_Sales_Model_Order $order
      */
-    protected function _processCancellation()
+    protected function _processCancellation($order)
     {
-        $order = $this->_getOrder();
         $messages = array();
         $hasError = false;
         try {
