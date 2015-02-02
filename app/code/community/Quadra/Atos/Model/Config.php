@@ -19,8 +19,6 @@ class Quadra_Atos_Model_Config extends Varien_Object
 
     const PAYMENT_ACTION_CAPTURE = 'AUTHOR_CAPTURE';
     const PAYMENT_ACTION_AUTHORIZE = 'VALIDATION';
-    const STATUS_ACCEPTED = 'payment_accepted';
-    const STATUS_REFUSED = 'payment_refused';
 
     protected $_method;
     protected $_merchantId;
