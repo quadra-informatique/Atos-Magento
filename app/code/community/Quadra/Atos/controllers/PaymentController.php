@@ -122,10 +122,19 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
                 }
             }
             if ($order->getId()) {
-                Mage::helper('atos')->reorder($response['hash']['order_id']);
-                $order->cancel()
-                        ->addStatusToHistory($order->getStatus(), $message)
-                        ->save();
+                try {
+                    Mage::helper('atos')->reorder($response['hash']['order_id']);
+                    $order->cancel()
+                            ->addStatusHistoryComment($message)
+                            ->save();
+                } catch (Mage_Core_Exception $e) {
+                    Mage::logException($e);
+                } catch (Exception $e) {
+                    $message = $this->__('The order has not been cancelled.');
+                    $order->addStatusHistoryComment($message)
+                            ->save();
+                    Mage::logException($e);
+                }
             }
         }
 
@@ -177,7 +186,7 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
         switch ($response['hash']['response_code']) {
             case '00':
                 if ($order->getId()) {
-                    $order->addStatusToHistory($order->getStatus(), $this->__('Customer returned successfully from Atos/Sips payment platform.'))
+                    $order->addStatusHistoryComment($this->__('Customer returned successfully from Atos/Sips payment platform.'))
                             ->save();
                 }
                 $this->getCheckoutSession()->getQuote()->setIsActive(false)->save();
@@ -188,11 +197,21 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
                 // Log error
                 $errorMessage = $this->__('Error: code %s.<br /> %s', $response['hash']['response_code'], $response['hash']['error']);
                 Mage::helper('atos')->logError(get_class($this), __FUNCTION__, $errorMessage);
-                // Add error on order message and reorder
+                // Add error on order message, cancel order and reorder
                 if ($order->getId()) {
-                    Mage::helper('atos')->reorder($response['hash']['order_id']);
-                    $order->addStatusToHistory($order->getStatus(), $errorMessage)
-                            ->save();
+                    try {
+                        Mage::helper('atos')->reorder($response['hash']['order_id']);
+                        $order->cancel()
+                                ->addStatusHistoryComment($message)
+                                ->save();
+                    } catch (Mage_Core_Exception $e) {
+                        Mage::logException($e);
+                    } catch (Exception $e) {
+                        $message = $this->__('The order has not been cancelled.');
+                        $order->addStatusHistoryComment($message)
+                                ->save();
+                        Mage::logException($e);
+                    }
                 }
                 // Set redirect message
                 $this->getAtosSession()->setRedirectTitle($this->__('Your payment has been rejected'));
@@ -241,7 +260,8 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
             }
 
             if (!$isIpOk) {
-                Mage::log(implode(', ', $ipAdresses) . ' tries to connect to our server' . "\n", null, 'atos.log');
+                $filename = 'payment_' . $this->getMethodInstance()->getCode() . '.log';
+                Mage::log(implode(', ', $ipAdresses) . ' tries to connect to our server' . "\n", Zend_Log::WARN, $filename, true);
                 return;
             }
         }
@@ -301,7 +321,7 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
                         // Save order
                         $order->save();
                     } catch (Exception $e) {
-                        Mage::throwException($e->getMessage());
+                        Mage::logException($e);
                     }
                     // Send order confirmation email
                     if (!$order->getEmailSent() && $order->getCanSendNewEmailFlag()) {
@@ -326,13 +346,20 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
                     break;
                 // Rejected payment
                 default:
-                    $message = $this->__('Payment rejected by Sips');
-                    $message .= '<br /><br />' . $this->getApiResponse()->describeResponse($response['hash']);
-                    // Update state and status order
-                    $order->setState(Mage_Sales_Model_Order::STATE_PAYMENT_REVIEW, Quadra_Atos_Model_Config::STATUS_REFUSED, $message);
-                    // Save order
-                    $order->save();
-                    break;
+                    try {
+                        $message = $this->__('Payment rejected by Sips');
+                        $message .= '<br /><br />' . $this->getApiResponse()->describeResponse($response['hash']);
+                        $order->cancel()
+                                ->addStatusHistoryComment($message)
+                                ->save();
+                    } catch (Mage_Core_Exception $e) {
+                        Mage::logException($e);
+                    } catch (Exception $e) {
+                        $message = $this->__('The order has not been cancelled.');
+                        $order->addStatusHistoryComment($message)
+                                ->save();
+                        Mage::logException($e);
+                    }
             }
         }
     }
