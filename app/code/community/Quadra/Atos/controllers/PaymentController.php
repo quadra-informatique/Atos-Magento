@@ -304,12 +304,20 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
                         Mage::throwException($e->getMessage());
                     }
                     // Send order confirmation email
-                    if (!$order->getEmailSent()) {
-                        $order->sendNewOrderEmail();
+                    if (!$order->getEmailSent() && $order->getCanSendNewEmailFlag()) {
+                        try {
+                            $order->sendNewOrderEmail();
+                        } catch (Exception $e) {
+                            Mage::logException($e);
+                        }
                     }
                     // Send invoice email
                     if (isset($invoice) && $invoice->getId()) {
-                        $invoice->sendEmail();
+                        try {
+                            $invoice->sendEmail();
+                        } catch (Exception $e) {
+                            Mage::logException($e);
+                        }
                     }
                     break;
                 // Rejected payment
