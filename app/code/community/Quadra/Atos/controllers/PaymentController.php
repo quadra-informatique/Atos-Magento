@@ -124,18 +124,17 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
             if ($order->getId()) {
                 try {
                     Mage::helper('atos')->reorder($response['hash']['order_id']);
-                    $order->cancel()
-                            ->addStatusHistoryComment($message)
-                            ->save();
+                    $order->cancel()->save();
                 } catch (Mage_Core_Exception $e) {
                     Mage::logException($e);
                 } catch (Exception $e) {
                     $message = $this->__('The order has not been cancelled.');
-                    $order->addStatusHistoryComment($message)
-                            ->save();
                     Mage::logException($e);
                 }
             }
+
+            // Add message to order
+            $order->addStatusHistoryComment($message)->save();
         }
 
         // Save Atos/Sips response in session
@@ -201,8 +200,8 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
                 if ($order->getId()) {
                     try {
                         Mage::helper('atos')->reorder($response['hash']['order_id']);
-                        $order->cancel()
-                                ->addStatusHistoryComment($message)
+                        $order->cancel()->save();
+                        $order->addStatusHistoryComment($errorMessage)
                                 ->save();
                     } catch (Mage_Core_Exception $e) {
                         Mage::logException($e);
@@ -237,131 +236,11 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
             // Log error
             $errorMessage = $this->__('Automatic response received but no data received for order #%s.', $this->getCheckoutSession()->getLastRealOrderId());
             Mage::helper('atos')->logError(get_class($this), __FUNCTION__, $errorMessage);
+            $this->getResponse()->setHeader('HTTP/1.1', '503 Service Unavailable');
             return;
         }
 
-        // Get Sips Server Response
-        $response = $this->_getAtosResponse($_REQUEST['DATA']);
-
-        // Debug
-        $this->getMethodInstance()->debugResponse($response['hash'], 'Automatic');
-
-        // Check IP address
-        if ($this->getMethodInstance()->getConfig()->getCheckByIpAddress()) {
-            $ipAdresses = $response['atos_server_ip_adresses'];
-            $authorizedIps = $this->getMethodInstance()->getConfig()->getAuthorizedIps();
-            $isIpOk = false;
-
-            foreach ($ipAdresses as $ipAdress) {
-                if (in_array(trim($ipAdress), $authorizedIps)) {
-                    $isIpOk = true;
-                    break;
-                }
-            }
-
-            if (!$isIpOk) {
-                $filename = 'payment_' . $this->getMethodInstance()->getCode() . '.log';
-                Mage::log(implode(', ', $ipAdresses) . ' tries to connect to our server' . "\n", Zend_Log::WARN, $filename, true);
-                return;
-            }
-        }
-
-        // Treat response
-        $order = Mage::getModel('sales/order');
-        if ($response['hash']['order_id']) {
-            $order->loadByIncrementId($response['hash']['order_id']);
-        }
-        if ($order->getId()) {
-            $messages = array();
-            switch ($response['hash']['response_code']) {
-                // Success order
-                case '00':
-                    // Get sips return data
-                    $messages[] = $this->__('Payment accepted by Sips') . '<br /><br />' . $this->getApiResponse()->describeResponse($response['hash']);
-
-                    try {
-                        // Set transaction
-                        $payment = $order->getPayment();
-                        $payment->setTransactionId($response['hash']['transaction_id']);
-                        $data = array(
-                            'cc_type' => $response['hash']['payment_means'],
-                            'cc_exp_month' => substr($response['hash']['card_validity'], 4, 2),
-                            'cc_exp_year' => substr($response['hash']['card_validity'], 0, 4),
-                            'cc_last4' => $response['hash']['card_number']
-                        );
-
-                        $payment->addData($data);
-                        $payment->save();
-
-                        if ($response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_CAPTURE ||
-                                $response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_AUTHORIZE) {
-                            // Add authorization transaction
-                            if (!$order->isCanceled() && $this->getMethodInstance()->canAuthorize()) {
-                                $payment->authorize(true, $order->getBaseGrandTotal());
-                                $payment->setAmountAuthorized($order->getTotalDue());
-
-                                // Create invoice
-                                $invoice = $order->prepareInvoice();
-                                $invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
-                                $invoice->register();
-
-                                $transactionSave = Mage::getModel('core/resource_transaction')
-                                        ->addObject($invoice)->addObject($invoice->getOrder())
-                                        ->save();
-
-                                $messages[] = Mage::helper('atos')->__('Invoice #%s created', $invoice->getIncrementId());
-                            }
-                        }
-
-                        // Add messages to order history
-                        foreach ($messages as $message) {
-                            $order->addStatusHistoryComment($message);
-                        }
-
-                        // Save order
-                        $order->save();
-                    } catch (Exception $e) {
-                        Mage::logException($e);
-                    }
-                    // Send order confirmation email
-                    if (!$order->getEmailSent() && $order->getCanSendNewEmailFlag()) {
-                        try {
-                            if (method_exists($order, 'queueNewOrderEmail')) {
-                                $order->queueNewOrderEmail();
-                            } else {
-                                $order->sendNewOrderEmail();
-                            }
-                        } catch (Exception $e) {
-                            Mage::logException($e);
-                        }
-                    }
-                    // Send invoice email
-                    if (isset($invoice) && $invoice->getId()) {
-                        try {
-                            $invoice->sendEmail();
-                        } catch (Exception $e) {
-                            Mage::logException($e);
-                        }
-                    }
-                    break;
-                // Rejected payment
-                default:
-                    try {
-                        $message = $this->__('Payment rejected by Sips');
-                        $message .= '<br /><br />' . $this->getApiResponse()->describeResponse($response['hash']);
-                        $order->cancel()
-                                ->addStatusHistoryComment($message)
-                                ->save();
-                    } catch (Mage_Core_Exception $e) {
-                        Mage::logException($e);
-                    } catch (Exception $e) {
-                        $message = $this->__('The order has not been cancelled.');
-                        $order->addStatusHistoryComment($message)
-                                ->save();
-                        Mage::logException($e);
-                    }
-            }
-        }
+        Mage::getModel('atos/ipn')->processIpnResponse($_REQUEST['DATA'], $this->getMethodInstance());
     }
 
     /**
