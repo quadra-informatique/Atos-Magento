@@ -306,7 +306,11 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
                     // Send order confirmation email
                     if (!$order->getEmailSent() && $order->getCanSendNewEmailFlag()) {
                         try {
-                            $order->sendNewOrderEmail();
+                            if (method_exists($order, 'queueNewOrderEmail')) {
+                                $order->queueNewOrderEmail();
+                            } else {
+                                $order->sendNewOrderEmail();
+                            }
                         } catch (Exception $e) {
                             Mage::logException($e);
                         }
