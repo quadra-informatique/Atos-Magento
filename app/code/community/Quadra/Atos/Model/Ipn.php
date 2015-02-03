@@ -157,38 +157,38 @@ class Quadra_Atos_Model_Ipn
         }
 
         // Get order to update
-        $order = $this->_getOrder();
+        $this->_getOrder();
         $messages = array();
 
         switch ($this->_response['hash']['response_code']) {
             case '00': // Success order
                 // Get sips return data
-                $messages[] = $this->__('Payment accepted by Sips') . '<br /><br />' . $this->_api->describeResponse($this->_response['hash']);
+                $messages[] = Mage::helper('atos')->__('Payment accepted by Sips') . '<br /><br />' . $this->_api->describeResponse($this->_response['hash']);
 
                 // Update payment
-                $this->_processOrderPayment($order);
+                $this->_processOrderPayment();
 
                 // Create invoice
                 if ($this->_invoiceFlag) {
-                    $invoiceId = $this->_processInvoice($order);
+                    $invoiceId = $this->_processInvoice();
                     $messages[] = Mage::helper('atos')->__('Invoice #%s created', $invoiceId);
                 }
 
                 // Add messages to order history
                 foreach ($messages as $message) {
-                    $order->addStatusHistoryComment($message);
+                    $this->_order->addStatusHistoryComment($message);
                 }
 
                 // Save order
-                $order->save();
+                $this->_order->save();
 
                 // Send order confirmation email
-                if (!$order->getEmailSent() && $order->getCanSendNewEmailFlag()) {
+                if (!$this->_order->getEmailSent() && $this->_order->getCanSendNewEmailFlag()) {
                     try {
-                        if (method_exists($order, 'queueNewOrderEmail')) {
-                            $order->queueNewOrderEmail();
+                        if (method_exists($this->_order, 'queueNewOrderEmail')) {
+                            $this->_order->queueNewOrderEmail();
                         } else {
-                            $order->sendNewOrderEmail();
+                            $this->_order->sendNewOrderEmail();
                         }
                     } catch (Exception $e) {
                         Mage::logException($e);
@@ -204,20 +204,18 @@ class Quadra_Atos_Model_Ipn
                 }
                 break;
             default: // Rejected payment or error
-                $this->_processCancellation($order);
+                $this->_processCancellation();
         }
     }
 
     /**
      * Update order payment
-     *
-     * @param Mage_Sales_Model_Order $order
      */
-    protected function _processOrderPayment($order)
+    protected function _processOrderPayment()
     {
         try {
             // Set transaction
-            $payment = $order->getPayment();
+            $payment = $this->_order->getPayment();
             $payment->setTransactionId($this->_response['hash']['transaction_id']);
             $data = array(
                 'cc_type' => $this->_response['hash']['payment_means'],
@@ -232,14 +230,14 @@ class Quadra_Atos_Model_Ipn
             if ($this->_response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_CAPTURE ||
                     $this->_response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_AUTHORIZE) {
                 // Add authorization transaction
-                if (!$order->isCanceled() && $this->_methodInstance->canAuthorize()) {
-                    $payment->authorize(true, $order->getBaseGrandTotal());
-                    $payment->setAmountAuthorized($order->getTotalDue());
+                if (!$this->_order->isCanceled() && $this->_methodInstance->canAuthorize()) {
+                    $payment->authorize(true, $this->_order->getBaseGrandTotal());
+                    $payment->setAmountAuthorized($this->_order->getTotalDue());
                     $this->_invoiceFlag = true;
                 }
             }
 
-            $order->save();
+            $this->_order->save();
         } catch (Exception $e) {
             Mage::logException($e);
             Mage::app()->getResponse()
@@ -252,13 +250,12 @@ class Quadra_Atos_Model_Ipn
     /**
      * Create invoice
      *
-     * @param Mage_Sales_Model_Order $order
      * @return string
      */
-    protected function _processInvoice($order)
+    protected function _processInvoice()
     {
         try {
-            $this->_invoice = $order->prepareInvoice();
+            $this->_invoice = $this->_order->prepareInvoice();
             $this->_invoice->setRequestedCaptureCase(Mage_Sales_Model_Order_Invoice::CAPTURE_OFFLINE);
             $this->_invoice->register();
 
@@ -278,27 +275,25 @@ class Quadra_Atos_Model_Ipn
 
     /**
      * Cancel order
-     *
-     * @param Mage_Sales_Model_Order $order
      */
-    protected function _processCancellation($order)
+    protected function _processCancellation()
     {
         $messages = array();
         $hasError = false;
         try {
-            $messages [] = $this->__('Payment rejected by Sips') . '<br /><br />' . $this->_api->describeResponse($this->_response['hash']);
-            $order->cancel();
+            $messages [] = Mage::helper('atos')->__('Payment rejected by Sips') . '<br /><br />' . $this->_api->describeResponse($this->_response['hash']);
+            $this->_order->cancel();
         } catch (Mage_Core_Exception $e) {
             $hasError = true;
             Mage::logException($e);
         } catch (Exception $e) {
             $hasError = true;
-            $messages[] = $this->__('The order has not been cancelled.');
+            $messages[] = Mage::helper('atos')->__('The order has not been cancelled.');
             Mage::logException($e);
         }
 
         foreach ($messages as $message) {
-            $order->addStatusHistoryComment($message)
+            $this->_order->addStatusHistoryComment($message)
                     ->save();
         }
 
