@@ -227,12 +227,12 @@ class Quadra_Atos_Model_Ipn
             $payment->addData($data);
             $payment->save();
 
-            if ($this->_response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_CAPTURE ||
-                    $this->_response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_AUTHORIZE) {
-                // Add authorization transaction
-                if (!$this->_order->isCanceled() && $this->_methodInstance->canAuthorize()) {
-                    $payment->authorize(true, $this->_order->getBaseGrandTotal());
-                    $payment->setAmountAuthorized($this->_order->getTotalDue());
+            // Add authorization transaction
+            if (!$this->_order->isCanceled() && $this->_methodInstance->canAuthorize()) {
+                $payment->authorize(true, $this->_order->getBaseGrandTotal());
+                $payment->setAmountAuthorized($this->_order->getTotalDue());
+                if ($this->_response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_CAPTURE ||
+                        $this->_response['hash']['capture_mode'] == Quadra_Atos_Model_Config::PAYMENT_ACTION_AUTHORIZE) {
                     $this->_invoiceFlag = true;
                 }
             }

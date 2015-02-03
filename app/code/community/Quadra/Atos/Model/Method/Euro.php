@@ -26,6 +26,8 @@ class Quadra_Atos_Model_Method_Euro extends Quadra_Atos_Model_Method_Abstract
      * Payment Method features
      * @var bool
      */
+    protected $_canAuthorize = true;
+    protected $_canCapture = true;
     protected $_isInitializeNeeded = true;
     protected $_canUseForMultishipping = false;
 
