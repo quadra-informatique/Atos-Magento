@@ -1,48 +1,51 @@
 <?php
 
 /**
- * 1997-2013 Quadra Informatique
+ * 1997-2015 Quadra Informatique
  *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Open Software License (OSL 3.0) that is available
  * through the world-wide-web at this URL: http://www.opensource.org/licenses/OSL-3.0
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
+ * to modules@quadra-informatique.fr so we can send you a copy immediately.
  *
- * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
- * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.3 $
+ * @author Quadra Informatique <modules@quadra-informatique.fr>
+ * @copyright 1997-2015 Quadra Informatique
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
-class Quadra_Atos_Model_Method_Euro extends Quadra_Atos_Model_Method_Abstract {
+class Quadra_Atos_Model_Method_Euro extends Quadra_Atos_Model_Method_Abstract
+{
 
-    protected $_code                = 'atos_euro';
-    protected $_formBlockType       = 'atos/form_euro';
-    protected $_infoBlockType       = 'atos/info_euro';
-    protected $_redirectBlockType   = 'atos/redirect_euro';
+    protected $_code = 'atos_euro';
+    protected $_formBlockType = 'atos/form_euro';
+    protected $_infoBlockType = 'atos/info_euro';
+    protected $_redirectBlockType = 'atos/redirect_euro';
 
     /**
      * Payment Method features
      * @var bool
      */
-    protected $_isInitializeNeeded      = true;
-    protected $_canUseForMultishipping  = false;
+    protected $_canAuthorize = true;
+    protected $_canCapture = true;
+    protected $_isInitializeNeeded = true;
+    protected $_canUseForMultishipping = false;
 
     /**
      * First call to the Atos server
      */
-    public function callRequest() {
+    public function callRequest()
+    {
         // Affectation des paramètres obligatoires
-	$parameters = "merchant_id=" . $this->getConfig()->getMerchantId();
-	$parameters .= " merchant_country=" . $this->getConfig()->getMerchantCountry();
-	$parameters .= " amount=" . $this->_getAmount();
-	$parameters .= " currency_code=" . $this->getConfig()->getCurrencyCode($this->_getQuote()->getQuoteCurrencyCode());
+        $parameters = "merchant_id=" . $this->getConfig()->getMerchantId();
+        $parameters .= " merchant_country=" . $this->getConfig()->getMerchantCountry();
+        $parameters .= " amount=" . $this->_getAmount();
+        $parameters .= " currency_code=" . $this->getConfig()->getCurrencyCode($this->_getQuote()->getQuoteCurrencyCode());
 
-	// Initialisation du chemin du fichier pathfile
-	$parameters .= " pathfile=" . $this->getConfig()->getPathfile();
+        // Initialisation du chemin du fichier pathfile
+        $parameters .= " pathfile=" . $this->getConfig()->getPathfile();
 
-	// Affectation dynamique des autres paramètres
+        // Affectation dynamique des autres paramètres
         $parameters .= " normal_return_url=" . $this->_getNormalReturnUrl();
         $parameters .= " cancel_return_url=" . $this->_getCancelReturnUrl();
         $parameters .= " automatic_response_url=" . $this->_getAutomaticResponseUrl();
@@ -56,7 +59,7 @@ class Quadra_Atos_Model_Method_Euro extends Quadra_Atos_Model_Method_Abstract {
         $parameters .= " order_id=" . $this->_getOrderId();
 
         // Initialisation du chemin de l'executable request
-	$binPath = $this->getConfig()->getBinRequest();
+        $binPath = $this->getConfig()->getBinRequest();
 
         // Debug
         if ($this->getConfigData('debug'))
@@ -82,7 +85,8 @@ class Quadra_Atos_Model_Method_Euro extends Quadra_Atos_Model_Method_Abstract {
      *
      * @return string
      */
-    protected function _getPaymentMeans() {
+    protected function _getPaymentMeans()
+    {
         return '1EUROCOM,2';
     }
 
@@ -91,7 +95,8 @@ class Quadra_Atos_Model_Method_Euro extends Quadra_Atos_Model_Method_Abstract {
      *
      * @return string
      */
-    protected function _getNormalReturnUrl() {
+    protected function _getNormalReturnUrl()
+    {
         return Mage::getUrl('atos/payment_euro/normal', array('_secure' => true));
     }
 
@@ -100,7 +105,8 @@ class Quadra_Atos_Model_Method_Euro extends Quadra_Atos_Model_Method_Abstract {
      *
      * @return string
      */
-    protected function _getCancelReturnUrl() {
+    protected function _getCancelReturnUrl()
+    {
         return Mage::getUrl('atos/payment_euro/cancel', array('_secure' => true));
     }
 
@@ -109,7 +115,8 @@ class Quadra_Atos_Model_Method_Euro extends Quadra_Atos_Model_Method_Abstract {
      *
      * @return string
      */
-    protected function _getAutomaticResponseUrl() {
+    protected function _getAutomaticResponseUrl()
+    {
         return Mage::getUrl('atos/payment_euro/automatic', array('_secure' => true));
     }
 
@@ -118,11 +125,13 @@ class Quadra_Atos_Model_Method_Euro extends Quadra_Atos_Model_Method_Abstract {
      *
      * @return string
      */
-    public function getOrderPlaceRedirectUrl() {
+    public function getOrderPlaceRedirectUrl()
+    {
         return Mage::getUrl('atos/payment_euro/redirect', array('_secure' => true));
     }
 
-    protected function _getEuroData() {
+    protected function _getEuroData()
+    {
         $billing = $this->_getOrder()->getBillingAddress();
 
         $data = '1EUROCOM_DATA=';

@@ -1,85 +1,86 @@
 <?php
 
 /**
- * 1997-2013 Quadra Informatique
+ * 1997-2015 Quadra Informatique
  *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Open Software License (OSL 3.0) that is available
  * through the world-wide-web at this URL: http://www.opensource.org/licenses/OSL-3.0
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
+ * to modules@quadra-informatique.fr so we can send you a copy immediately.
  *
- * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
- * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.3 $
+ * @author Quadra Informatique <modules@quadra-informatique.fr>
+ * @copyright 1997-2015 Quadra Informatique
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
-class Quadra_Atos_Model_Api_Response {
+class Quadra_Atos_Model_Api_Response
+{
 
-    public function doResponse($data, $parameters) {
+    public function doResponse($data, $parameters)
+    {
         // Récupération de la variable cryptée DATA
-	$message = "message=$data";
+        $message = "message=$data";
 
-	// Initialisation du chemin du fichier pathfile
+        // Initialisation du chemin du fichier pathfile
         $pathfile = "pathfile=" . $parameters['pathfile'];
 
-	// Initialisation du chemin de l'executable response
-	$binPath = $parameters['bin_response'];
+        // Initialisation du chemin de l'executable response
+        $binPath = $parameters['bin_response'];
 
-	// Appel du binaire response
+        // Appel du binaire response
         $command = "$binPath $pathfile $message";
-	$result = shell_exec($command);
+        $result = shell_exec($command);
 
-	// On separe les differents champs et on les met dans une variable tableau
-	$sips_response = explode('!', $result);
+        // On separe les differents champs et on les met dans une variable tableau
+        $sips_response = explode('!', $result);
 
-	// Récupération des données de la réponse
+        // Récupération des données de la réponse
         $hash = array();
 
         list (,
-            $hash['code'],
-            $hash['error'],
-            $hash['merchant_id'],
-            $hash['merchant_country'],
-            $hash['amount'],
-            $hash['transaction_id'],
-            $hash['payment_means'],
-            $hash['transmission_date'],
-            $hash['payment_time'],
-            $hash['payment_date'],
-            $hash['response_code'],
-            $hash['payment_certificate'],
-            $hash['authorisation_id'],
-            $hash['currency_code'],
-            $hash['card_number'],
-            $hash['cvv_flag'],
-            $hash['cvv_response_code'],
-            $hash['bank_response_code'],
-            $hash['complementary_code'],
-            $hash['complementary_info'],
-            $hash['return_context'],
-            $hash['caddie'], // unavailable with NO_RESPONSE_PAGE
-            $hash['receipt_complement'],
-            $hash['merchant_language'], // unavailable with NO_RESPONSE_PAGE
-            $hash['language'],
-            $hash['customer_id'], // unavailable with NO_RESPONSE_PAGE
-            $hash['order_id'],
-            $hash['customer_email'], // unavailable with NO_RESPONSE_PAGE
-            $hash['customer_ip_address'], // unavailable with NO_RESPONSE_PAGE
-            $hash['capture_day'],
-            $hash['capture_mode'],
-            $hash['data'],
-            $hash['order_validity'],
-            $hash['transaction_condition'],
-            $hash['statement_reference'],
-            $hash['card_validity'],
-            $hash['score_value'],
-            $hash['score_color'],
-            $hash['score_info'],
-            $hash['score_threshold'],
-            $hash['score_profile']
-        ) = $sips_response;
+                $hash['code'],
+                $hash['error'],
+                $hash['merchant_id'],
+                $hash['merchant_country'],
+                $hash['amount'],
+                $hash['transaction_id'],
+                $hash['payment_means'],
+                $hash['transmission_date'],
+                $hash['payment_time'],
+                $hash['payment_date'],
+                $hash['response_code'],
+                $hash['payment_certificate'],
+                $hash['authorisation_id'],
+                $hash['currency_code'],
+                $hash['card_number'],
+                $hash['cvv_flag'],
+                $hash['cvv_response_code'],
+                $hash['bank_response_code'],
+                $hash['complementary_code'],
+                $hash['complementary_info'],
+                $hash['return_context'],
+                $hash['caddie'], // unavailable with NO_RESPONSE_PAGE
+                $hash['receipt_complement'],
+                $hash['merchant_language'], // unavailable with NO_RESPONSE_PAGE
+                $hash['language'],
+                $hash['customer_id'], // unavailable with NO_RESPONSE_PAGE
+                $hash['order_id'],
+                $hash['customer_email'], // unavailable with NO_RESPONSE_PAGE
+                $hash['customer_ip_address'], // unavailable with NO_RESPONSE_PAGE
+                $hash['capture_day'],
+                $hash['capture_mode'],
+                $hash['data'],
+                $hash['order_validity'],
+                $hash['transaction_condition'],
+                $hash['statement_reference'],
+                $hash['card_validity'],
+                $hash['score_value'],
+                $hash['score_color'],
+                $hash['score_info'],
+                $hash['score_threshold'],
+                $hash['score_profile']
+                ) = $sips_response;
 
         // Formatage du retour
         return array(
@@ -95,7 +96,8 @@ class Quadra_Atos_Model_Api_Response {
      *
      *  @return array
      */
-    public function getAtosServerIpAddresses() {
+    public function getAtosServerIpAddresses()
+    {
         if (isset($_SERVER)) {
             if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
                 $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -117,13 +119,14 @@ class Quadra_Atos_Model_Api_Response {
         return explode(',', $ip);
     }
 
-    public function describeResponse($response, $return = 'string') {
+    public function describeResponse($response, $return = 'string')
+    {
         $array = array();
 
         $string = Mage::helper('atos')->__('Transaction number: %s', $response['transaction_id']) . "<br />";
 
         if (isset($response['capture_mode']) && strlen($response['capture_mode']) > 0)
-        $string.= Mage::helper('atos')->__('Mode de capture : %s', $response['capture_mode']) . "<br />";
+            $string.= Mage::helper('atos')->__('Mode de capture : %s', $response['capture_mode']) . "<br />";
 
         if (isset($response['capture_day']) && is_numeric($response['capture_day'])) {
             if ($response['capture_day'] == 0) {

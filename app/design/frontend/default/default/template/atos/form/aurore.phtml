@@ -1,17 +1,16 @@
 <?php
 /**
- * 1997-2013 Quadra Informatique
+ * 1997-2015 Quadra Informatique
  *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Open Software License (OSL 3.0) that is available
  * through the world-wide-web at this URL: http://www.opensource.org/licenses/OSL-3.0
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
+ * to modules@quadra-informatique.fr so we can send you a copy immediately.
  *
- * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
- * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.3 $
+ * @author Quadra Informatique <modules@quadra-informatique.fr>
+ * @copyright 1997-2015 Quadra Informatique
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 ?>
@@ -33,7 +32,7 @@
             var button = $('payment-buttons-container').down('button');
             var atosAuoreMethod = $('p_method_<?php echo $_code ?>');
             if (button && atosAuoreMethod) {
-                Event.observe(button, 'click', function(){
+                Event.observe(button, 'click', function() {
                     if (atosAuoreMethod.checked === true) {
                         params = {
                             dob: $('<?php echo $_code ?>:dob').value

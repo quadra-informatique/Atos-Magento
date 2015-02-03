@@ -1,23 +1,24 @@
 <?php
 
 /**
- * 1997-2013 Quadra Informatique
+ * 1997-2015 Quadra Informatique
  *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Open Software License (OSL 3.0) that is available
  * through the world-wide-web at this URL: http://www.opensource.org/licenses/OSL-3.0
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
+ * to modules@quadra-informatique.fr so we can send you a copy immediately.
  *
- * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
- * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.3 $
+ * @author Quadra Informatique <modules@quadra-informatique.fr>
+ * @copyright 1997-2015 Quadra Informatique
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
-class Quadra_Atos_Block_Redirect_Several extends Mage_Core_Block_Abstract {
+class Quadra_Atos_Block_Redirect_Several extends Mage_Core_Block_Abstract
+{
 
-    protected function _toHtml() {
+    protected function _toHtml()
+    {
         $method = Mage::getModel('atos/method_several');
         $method->callRequest();
 
@@ -25,7 +26,7 @@ class Quadra_Atos_Block_Redirect_Several extends Mage_Core_Block_Abstract {
         $html .= '<html>';
         $html .= '<head></head>';
         $html .= '<body>';
-        $html .= '<div align="center">'.$this->__('Please, select your payment method:').'</div>';
+        $html .= '<div align="center">' . $this->__('Please, select your payment method:') . '</div>';
 
         if ($method->hasSystemError()) {
             // Has error

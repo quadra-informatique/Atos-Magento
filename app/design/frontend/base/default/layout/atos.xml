@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * 1997-2015 Quadra Informatique
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0) that is available
+ * through the world-wide-web at this URL: http://www.opensource.org/licenses/OSL-3.0
+ * If you are unable to obtain it through the world-wide-web, please send an email
+ * to modules@quadra-informatique.fr so we can send you a copy immediately.
+ *
+ * @author Quadra Informatique <modules@quadra-informatique.fr>
+ * @copyright 1997-2015 Quadra Informatique
+ * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
+ */
+-->
+
+<layout version="1.0.0">
+    <checkout_onepage_index>
+        <reference name="head">
+            <action method="addItem"><type>skin_css</type><name>css/atos/checkout.css</name></action>
+        </reference>
+    </checkout_onepage_index>
+
+    <atos_payment_failure>
+        <label>Atos/Sips Failure</label>
+        <reference name="root">
+            <action method="setTemplate"><template>page/2columns-right.phtml</template></action>
+        </reference>
+        <reference name="content">
+            <block type="core/template" name="atos_failure" template="atos/failure.phtml" />
+        </reference>
+    </atos_payment_failure>
+
+    <atos_payment_standard_failure>
+        <update handle="atos_payment_failure" />
+    </atos_payment_standard_failure>
+
+    <atos_payment_several_failure>
+        <update handle="atos_payment_failure" />
+    </atos_payment_several_failure>
+
+    <atos_payment_aurore_failure>
+        <update handle="atos_payment_failure" />
+    </atos_payment_aurore_failure>
+
+    <atos_payment_euro_failure>
+        <update handle="atos_payment_failure" />
+    </atos_payment_euro_failure>
+</layout>

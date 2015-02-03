@@ -1,28 +1,30 @@
 <?php
 
 /**
- * 1997-2013 Quadra Informatique
+ * 1997-2015 Quadra Informatique
  *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Open Software License (OSL 3.0) that is available
  * through the world-wide-web at this URL: http://www.opensource.org/licenses/OSL-3.0
  * If you are unable to obtain it through the world-wide-web, please send an email
- * to ecommerce@quadra-informatique.fr so we can send you a copy immediately.
+ * to modules@quadra-informatique.fr so we can send you a copy immediately.
  *
- * @author Quadra Informatique <ecommerce@quadra-informatique.fr>
- * @copyright 1997-2013 Quadra Informatique
- * @version Release: $Revision: 3.0.3 $
+ * @author Quadra Informatique <modules@quadra-informatique.fr>
+ * @copyright 1997-2015 Quadra Informatique
  * @license http://www.opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
-class Quadra_Atos_Block_Form_Several extends Mage_Payment_Block_Form {
+class Quadra_Atos_Block_Form_Several extends Mage_Payment_Block_Form
+{
 
-    protected function _construct() {
+    protected function _construct()
+    {
         $this->setTemplate('atos/form/several.phtml');
         parent::_construct();
     }
 
-    public function getCreditCardsAccepted() {
+    public function getCreditCardsAccepted()
+    {
         return explode(',', Mage::getStoreConfig('payment/atos_several/cctypes'));
     }
 
