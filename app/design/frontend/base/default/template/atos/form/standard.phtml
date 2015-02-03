@@ -17,9 +17,11 @@
 <?php $_code = $this->getMethodCode(); ?>
 <ul class="form-list">
     <li>
-        <?php foreach ($this->getCreditCardsAccepted() as $card): ?>
-            <img src="<?php echo Mage::getBaseUrl('media') . 'atos/logo/' . $card . '.gif' ?>" alt="<?php echo $card ?>" />
-        <?php endforeach; ?>
+        <div class="atos-logo">
+            <?php foreach ($this->getCreditCardsAccepted() as $card): ?>
+                <img src="<?php echo Mage::getBaseUrl('media') . 'atos/logo/' . $card . '.gif' ?>" alt="<?php echo $card ?>" />
+            <?php endforeach; ?>
+        </div>
     </li>
 </ul>
 <ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none">

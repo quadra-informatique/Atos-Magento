@@ -16,7 +16,11 @@
 ?>
 <?php $_code = $this->getMethodCode() ?>
 <ul class="form-list">
-    <li><img src="<?php echo Mage::getBaseUrl('media') . 'atos/logo/1EUROCOM.gif' ?>" alt="1EUROCOM" /></li>
+    <li>
+        <div class="atos-logo">
+            <img src="<?php echo Mage::getBaseUrl('media') . 'atos/logo/1EUROCOM.gif' ?>" alt="1EUROCOM" />
+        </div>
+    </li>
 </ul>
 <ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none">
     <li><?php echo $this->__('You will be redirected to the payment server after the finalization of your order.') ?></li>
