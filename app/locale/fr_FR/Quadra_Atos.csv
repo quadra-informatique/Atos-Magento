@@ -61,7 +61,7 @@
 "Payment rejected by Sips","Paiement rejeté par Sips"
 "Payment server IP address","Adresse IP du serveur de paiement"
 "Payment server IP address","Adresse IP du serveur de paiement"
-"Please, select your payment method:"","Sélectionnez votre méthode de paiement :"
+"Please, select your payment method:","Sélectionnez votre méthode de paiement :"
 "Process payment was cancelled, your order was automatically cancelled.","Le processus de paiement a été annulé, votre commande a été automatiquement annulée."
 "Refused authorization","Autorisation refusée"
 "Rejected ATOS Transaction - invalid code %s","ATOS Transaction rejetée - code invalide %s"
