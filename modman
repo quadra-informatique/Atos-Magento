@@ -1,7 +1,7 @@
 app/code/community/Quadra/Atos                              app/code/community/Quadra/Atos
 app/design/adminhtml/default/default/template/atos/info     app/design/adminhtml/default/default/template/atos/info
-app/design/frontend/default/default/layout/atos.xml         app/design/frontend/default/default/layout/atos.xml
-app/design/frontend/default/default/template/atos           app/design/frontend/default/default/template/atos
+app/design/frontend/base/default/layout/atos.xml         app/design/frontend/base/default/layout/atos.xml
+app/design/frontend/base/default/template/atos           app/design/frontend/base/default/template/atos
 app/etc/modules/Quadra_Atos.xml                             app/etc/modules/Quadra_Atos.xml
 app/locale/fr_FR/Quadra_Atos.csv                            app/locale/fr_FR/Quadra_Atos.csv
 media/atos                                                  media/atos
