@@ -1,42 +1,61 @@
-Le module de paiement Atos/Sips pour Magento 1.5+ implémente la solution de paiement à distance SIPS disponible chez Atos.
-Il permet l'échange d'informations de paiement, avec un très haut niveau de sécurité, entre votre banque et Magento.
+# ATOS/Sips Community Module for Magento 1.x (1.7+)
 
-Le module prend en charge la communication avec les banques suivantes (liste non exhaustive) :
+The payment module Atos/Sips use the remote payment solution available at Atos.
 
-- BNP Paribas : solution Mercanet
-- HSBC CCF : solution Elysnet
-- Société Générale : solution Sogenactif
-- Crédit Lyonnais / LCL : solution Sherlock's
-- Crédit du Nord / Kolb : solution Webaffaires
-- Banque Postale : solution Scelliusnet
+The module takes into consideration communication with the following banks (non-exhaustive list):
+- BNP Paribas: solution Mercanet
+- HSBC CCF: solution Elysnet
+- Société Générale: solution Sogenactif
+- Crédit Lyonnais / LCL: solution Sherlock's
+- Crédit du Nord / Kolb: solution Webaffaires
+- Banque Postale: solution Scelliusnet
 - Natixis
-- Crédit mutuel de Bretagne : solution Citelis
-- Credit Agricole : solution E-transactions
+- Crédit mutuel de Bretagne: solution Citelis
+- Credit Agricole: solution E-transactions
 
-
-Fonctionnalités disponibles :
-
-Le module de paiement Atos/Sips met à votre disposition quatre méthodes de paiement Magento :
-
+Operations available:
 - Atos/Sips
 - Aurore
-- Paiement en plusieurs fois
+- Payment in several times
 - Atos 1Euro.com
 
+The method which you will choose to use on your website will depend on the Atos Contract that you would have subscribed at your bank.
 
-La méthode que vous choisirez d'utiliser sur votre site dépendra du contrat Atos que vous aurez souscrit auprès de votre banque.
+It is possible to:
+- configure the initial order status
+- define countries which will benefit from this payment mode
 
-Il est possible de :
+## Disclamer
 
-- paramétrer le statut initial d'une commande
-- définir les pays qui bénéficieront de ce mode de paiement
+Per to the OSL 3 License, the Original Work is provided under this License on an "AS IS" BASIS and WITHOUT WARRANTY, either express or implied, including, without limitation, the warranties of non-infringement, merchantability or fitness for a particular purpose. THE ENTIRE RISK AS TO THE QUALITY OF THE ORIGINAL WORK IS WITH YOU. This DISCLAIMER OF WARRANTY constitutes an essential part of this License. No license to the Original Work is granted by this License except under this disclaimer.
 
+## Contributing
 
-Pré-requis techniques :
+This module is an **open-source extension** to the PrestaShop e-commerce solution. Everyone is welcome and even encouraged to contribute with their own improvements.
 
-Vous devez dans un premier temps souscrire à un contrat qui permettra l'utilisation du paiement Atos auprès de votre banque .
+### Requirements for contributing
 
-Dans un deuxième temps, votre banque vous fournira des fichiers exécutables, exploités par le module Atos/Sips, que vous devrez placer dans le répertoire lib/atos/ qui se trouve à la racine de votre Magento.
-Attention : ces fichiers binaires ne sont fournis que pour les noyaux linux 2.4 et 2.6.
+Contributors **must** follow the following rules:
 
-Côté serveur, l'utilisation de la fonction exec() doit être autorisé car le module y fait appel. Pensez également à désactiver le safe_mode.
+* **Make your Pull Request on the "master" branch**
+* Do NOT update the module's version number.
+* Follow [the coding standards][1].
+
+### Contributing process in details
+
+Contributors wishing to edit a module's files should follow the following process:
+
+1. Create your GitHub account, if you do not have one already.
+2. Fork the ganalytics project to your GitHub account.
+3. Clone your fork to your local machine in the ```/modules``` directory of your PrestaShop installation.
+4. Create a branch in your local clone of the module for your changes.
+5. Change the files in your branch. Be sure to follow [the coding standards][1]!
+6. Push your changed branch to your fork in your GitHub account.
+7. Create a pull request for your changes **on the _'dev'_ branch** of the module's project. If you need help to make a pull request, read the [Github help page about creating pull requests][2].
+8. Wait for one of the core developers either to include your change in the codebase, or to comment on possible improvements you should make to your code.
+
+That's it: you have contributed to this open-source project! Congratulations!
+
+[1]: http://devdocs.magento.com/guides/v2.0/coding-standards/code-standard-php.html
+[2]: https://help.github.com/articles/using-pull-requests
+
