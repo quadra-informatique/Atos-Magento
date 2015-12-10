@@ -278,23 +278,26 @@ class Quadra_Atos_Model_Ipn
      */
     protected function _processCancellation()
     {
-        $messages = array();
-        $hasError = false;
-        try {
-            $messages [] = Mage::helper('atos')->__('Payment rejected by Sips') . '<br /><br />' . $this->_api->describeResponse($this->_response['hash']);
-            $this->_order->cancel();
-        } catch (Mage_Core_Exception $e) {
-            $hasError = true;
-            Mage::logException($e);
-        } catch (Exception $e) {
-            $hasError = true;
-            $messages[] = Mage::helper('atos')->__('The order has not been cancelled.');
-            Mage::logException($e);
-        }
+        $message = Mage::helper('atos')->__('Payment rejected by Sips') . '<br /><br />' . $this->_api->describeResponse($this->_response['hash']);
+        $hasError = true;
 
-        foreach ($messages as $message) {
-            $this->_order->addStatusHistoryComment($message)
-                    ->save();
+        if ($this->_order->canCancel()) {
+            try {
+                $this->_order->registerCancellation($message)->save();
+            } catch (Mage_Core_Exception $e) {
+                $hasError = true;
+                Mage::logException($e);
+            } catch (Exception $e) {
+                $hasError = true;
+                Mage::logException($e);
+                $message .= '<br /><br />';
+                $message .= Mage::helper('atos')->__('The order has not been cancelled.'). ' : ' . $e->getMessage();
+                $this->_order->addStatusHistoryComment($message)->save();
+            }
+        } else {
+            $message .= '<br /><br />';
+            $message .= Mage::helper('atos')->__('The order was already cancelled.');
+            $this->_order->addStatusHistoryComment($message)->save();
         }
 
         if ($hasError) {
