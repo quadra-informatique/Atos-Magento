@@ -121,20 +121,26 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
                     $this->getAtosSession()->setRedirectMessage($this->__('The payment platform has rejected your transaction with the message: <strong>%s</strong>.', $describedResponse['response_code']));
                 }
             }
-            if ($order->getId()) {
-                try {
-                    Mage::helper('atos')->reorder($response['hash']['order_id']);
-                    $order->cancel()->save();
-                } catch (Mage_Core_Exception $e) {
-                    Mage::logException($e);
-                } catch (Exception $e) {
-                    $message = $this->__('The order has not been cancelled.');
-                    Mage::logException($e);
+            if ($order->getId()){
+                if ($order->canCancel()) {
+                    try {
+                        $order->registerCancellation($message)->save();
+                    } catch (Mage_Core_Exception $e) {
+                        Mage::logException($e);
+                    } catch (Exception $e) {
+                        Mage::logException($e);
+                        $message .= '<br/><br/>';
+                        $message .= $this->__('The order has not been cancelled.'). ' : ' . $e->getMessage();
+                        $order->addStatusHistoryComment($message)->save();
+                    }
+                } else {
+                    $message .= '<br/><br/>';
+                    $message .= $this->__('The order was already cancelled.');
+                    $order->addStatusHistoryComment($message)->save();
                 }
             }
-
-            // Add message to order
-            $order->addStatusHistoryComment($message)->save();
+            // Refill cart
+            Mage::helper('atos')->reorder($response['hash']['order_id']);
         }
 
         // Save Atos/Sips response in session
@@ -198,19 +204,26 @@ class Quadra_Atos_PaymentController extends Mage_Core_Controller_Front_Action
                 Mage::helper('atos')->logError(get_class($this), __FUNCTION__, $errorMessage);
                 // Add error on order message, cancel order and reorder
                 if ($order->getId()) {
-                    try {
-                        Mage::helper('atos')->reorder($response['hash']['order_id']);
-                        $order->cancel()->save();
-                        $order->addStatusHistoryComment($errorMessage)
-                                ->save();
-                    } catch (Mage_Core_Exception $e) {
-                        Mage::logException($e);
-                    } catch (Exception $e) {
-                        $message = $this->__('The order has not been cancelled.');
-                        $order->addStatusHistoryComment($message)
-                                ->save();
-                        Mage::logException($e);
+                    if ($order->canCancel()) {
+                        try {
+                            $order->registerCancellation($errorMessage)->save();
+                        } catch (Mage_Core_Exception $e) {
+                            Mage::logException($e);
+                        } catch (Exception $e) {
+                            Mage::logException($e);
+                            $errorMessage .= '<br/><br/>';
+                            $errorMessage .= $this->__('The order has not been cancelled.'). ' : ' . $e->getMessage();
+                            $order->addStatusHistoryComment($errorMessage)->save();
+                        }
+                    } else {
+                        $errorMessage .= '<br/><br/>';
+                        $errorMessage .= $this->__('The order was already cancelled.');
+                        $order->addStatusHistoryComment($errorMessage)->save();
                     }
+
+                    // Refill cart
+                    Mage::helper('atos')->reorder($response['hash']['order_id']);
+
                 }
                 // Set redirect message
                 $this->getAtosSession()->setRedirectTitle($this->__('Your payment has been rejected'));
