@@ -1,3 +1,7 @@
+# Security
+No update has been made since 2016. There could be some security issues if you download this.
+
+
 # ATOS/Sips Community Module for Magento 1.x (1.7+)
 
 The payment module Atos/Sips use the remote payment solution available at Atos.
